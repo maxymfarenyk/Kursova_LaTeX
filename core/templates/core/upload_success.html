@@ -5,5 +5,5 @@
 
 {% block content %}
 <h1>Latex File Uploaded Successfully!</h1>
-
+<a href="{% url 'download_file' file_path %}">Download File</a>
 {% endblock %}

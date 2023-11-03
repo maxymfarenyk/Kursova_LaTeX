@@ -1,8 +1,10 @@
 import os
 
 from django.conf import settings
+from django.http import HttpResponse, FileResponse
 from django.shortcuts import render
-from pylatex import Document, Section, Subsection, Command
+from pylatex import Document, Section, Subsection, Command, NoEscape
+
 
 def index(request):
     return render(request, 'core/index.html')
@@ -19,6 +21,12 @@ def upload_latex_file(request):
             for chunk in uploaded_file.chunks():
                 destination.write(chunk)
 
-        return render(request, 'core/upload_success.html')
+        return render(request, 'core/upload_success.html', {'file_path': file_path})
     return render(request, 'core/upload.html')
 
+def download_file(request, file_path):
+    file_path = os.path.join(settings.MEDIA_ROOT, file_path)
+    with open(file_path, 'rb') as file:
+        response = HttpResponse(file.read(), content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{os.path.basename(file_path)}"'
+        return response
