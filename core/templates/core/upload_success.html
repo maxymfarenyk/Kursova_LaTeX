@@ -1,9 +1,23 @@
+
 {% extends 'core/base.html' %}
 
 {% block title %}Upload
 {% endblock %}
 
 {% block content %}
-<h1>Latex File Uploaded Successfully!</h1>
-<a href="{% url 'download_file' file_path %}">Download File</a>
+<div>
+    <div class="row">
+        <div class="col text-lg font-bold">
+
+                <h1>Latex File Uploaded Successfully!</h1>
+
+        </div>
+    </div>
+    <div class="row my-5">
+        <div class="space-x-6">
+            <a href="{% url 'download_file' file_path %}" class="px-6 py-3 text-lg font-semibold bg-blue-700 text-white rounded-xl hover:bg-blue-900">Download File</a>
+            <a href="{% url 'download_pdf' file_path %}" class="px-6 py-3 text-lg font-semibold bg-red-700 text-white rounded-xl hover:bg-red-900">Download PDF</a>
+        </div>
+    </div>
+</div>
 {% endblock %}

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path
-from core.views import index, contact, upload_latex_file, download_file
+from core.views import index, contact, upload_latex_file, download_file, download_pdf
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -9,6 +9,7 @@ urlpatterns = [
     path('contact/', contact, name='contact'),
     path('upload/', upload_latex_file, name='upload'),
     path('download/<str:file_path>/', download_file, name='download_file'),
+    path('download_pdf/<str:file_path>/', download_pdf, name='download_pdf'),
     path('admin/', admin.site.urls),
 ]
 
