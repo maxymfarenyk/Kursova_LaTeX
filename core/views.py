@@ -3,8 +3,9 @@ import aspose.pdf as ap
 
 from django.conf import settings
 from django.http import HttpResponse, FileResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
+from .forms import SignupForm
 
 
 def index(request):
@@ -44,3 +45,20 @@ def download_pdf(request, file_path):
         response = HttpResponse(file.read(), content_type='application/pdf')
         response['Content-Disposition'] = f'attachment; filename="newfile.pdf"'
         return response
+
+
+def signup(request):
+    if request.method == 'POST':
+        form = SignupForm(request.POST)
+
+        if form.is_valid():
+            form.save()
+
+            return redirect('/login/')
+    else:
+        form = SignupForm()
+
+
+    return render(request, 'core/signup.html', {
+        'form': form
+    })
