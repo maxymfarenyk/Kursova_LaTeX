@@ -4,7 +4,7 @@ import aspose.pdf as ap
 from django.conf import settings
 from django.http import HttpResponse, FileResponse
 from django.shortcuts import render, redirect
-
+from .models import Profile
 from .forms import SignupForm
 
 
@@ -13,6 +13,13 @@ def index(request):
 
 def contact(request):
     return render(request, 'core/contact.html')
+
+
+def profile(request):
+    profile = Profile.objects.get(user=request.user)
+    print ("username:" + str(profile.username))
+    print(profile.email)
+    return render(request, 'core/profile.html', {'profile': profile})
 
 def upload_latex_file(request):
     if request.method == 'POST':

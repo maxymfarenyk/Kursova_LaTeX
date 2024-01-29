@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path
-from core.views import index, contact, upload_latex_file, download_file, download_pdf, signup
+from core.views import index, contact, upload_latex_file, download_file, download_pdf, signup, profile
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
@@ -16,6 +16,7 @@ urlpatterns = [
     path('signup/', signup, name='signup'),
     path('login/', auth_views.LoginView.as_view(template_name='core/login.html',authentication_form=LoginForm), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
+    path('profile/', profile, name='profile'),
     path('admin/', admin.site.urls),
 ]
 

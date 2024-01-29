@@ -16,7 +16,7 @@
                 <a href="/upload" class="text-lg font-semibold hover:text-gray-500">Upload New</a>
                 
                 {% if request.user.is_authenticated %}
-                    <a href="#" class="px-6 py-3 text-lg font-semibold bg-blue-500 text-white rounded-xl hover:bg-blue-700">Profile</a>                   
+                    <a href="{% url 'profile' %}" class="px-6 py-3 text-lg font-semibold bg-blue-500 text-white rounded-xl hover:bg-blue-700">Profile</a>
                     <a href="{% url 'logout' %}" class="pe-6 ps-2 py-3 text-lg font-semibold hover:text-gray-500">Log out</a>
                 {% else %}
                     <a href="/signup" class="px-6 py-3 text-lg font-semibold bg-blue-500 text-white rounded-xl hover:bg-blue-700">Sign Up</a>
