@@ -1,15 +1,17 @@
 import os
 import aspose.pdf as ap
-
+from django.urls import reverse
 from django.conf import settings
 from django.http import HttpResponse, FileResponse
 from django.shortcuts import render, redirect
-from .models import Profile
+from .models import Profile, UploadedFile
 from .forms import SignupForm
 
 
 def index(request):
-    return render(request, 'core/index.html')
+    uploaded_files = UploadedFile.objects.all()
+    return render(request, 'core/index.html', {'uploaded_files': uploaded_files})
+
 
 def contact(request):
     return render(request, 'core/contact.html')
@@ -17,21 +19,33 @@ def contact(request):
 
 def profile(request):
     profile = Profile.objects.get(user=request.user)
-    print ("username:" + str(profile.username))
-    print(profile.email)
-    return render(request, 'core/profile.html', {'profile': profile})
+
+    uploaded_files = UploadedFile.objects.filter(user=request.user)
+
+    return render(request, 'core/profile.html', {'profile': profile, 'uploaded_files': uploaded_files})
+
 
 def upload_latex_file(request):
     if request.method == 'POST':
         uploaded_file = request.FILES['latex_file']
-        file_path = os.path.join(settings.MEDIA_ROOT, uploaded_file.name)
+        if uploaded_file:
+            if request.user.is_authenticated:
+                user = request.user
+            else:
+                form = SignupForm()
 
-        with open(file_path, 'wb') as destination:
-            for chunk in uploaded_file.chunks():
-                destination.write(chunk)
+                return render(request, 'core/signup.html', {
+                    'form': form
+                })
+
+        uploaded_file_obj = UploadedFile(user=user, file=uploaded_file)
+        uploaded_file_obj.save()
+
+        file_path = os.path.join(settings.MEDIA_ROOT, uploaded_file.name)
 
         return render(request, 'core/upload_success.html', {'file_path': file_path})
     return render(request, 'core/upload.html')
+
 
 def download_file(request, file_path):
     file_path = os.path.join(settings.MEDIA_ROOT, file_path)
@@ -39,6 +53,7 @@ def download_file(request, file_path):
         response = HttpResponse(file.read(), content_type='application/pdf')
         response['Content-Disposition'] = f'attachment; filename="{os.path.basename(file_path)}"'
         return response
+
 
 def download_pdf(request, file_path):
     original_file_path = os.path.join(settings.MEDIA_ROOT, file_path)
@@ -64,7 +79,6 @@ def signup(request):
             return redirect('/login/')
     else:
         form = SignupForm()
-
 
     return render(request, 'core/signup.html', {
         'form': form

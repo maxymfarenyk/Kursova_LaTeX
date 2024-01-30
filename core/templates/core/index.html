@@ -4,31 +4,34 @@
 {% endblock %}
 
 {% block content %}
-<h1>The front page</h1>
+ <div class="container">
+    <h1>Uploaded Files</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>File Name</th>
+                <th>Author</th>
+                <th>Date Uploaded</th>
+                <th>Download</th>
+                <th>Download PDF</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for file in uploaded_files %}
+            <tr>
+                <td>{{ file.file.name }}</td>
+                <td>{{ file.user.username }}</td>
+                <td>{{ file.upload_date }}</td>
+                <td>
+                    <a href="{% url 'download_file' file.file.name %}" class="btn bg-blue-400 rounded-xl hover:bg-blue-600"><img src="/media/images/download_tex_icon.png" alt="Download" width="50px"></a>
 
-    <div class="text-xl font-bold px-20 py-20">
-            <h1>Lorem ipsum dolor sit, amet consectetur adipisicing elit.
-                Atque debitis, nihil quibusdam aspernatur ducimus veniam!
-                 Nobis nostrum nemo minima architecto recusandae perspiciatis
-                  nulla maxime vitae molestias assumenda cumque, dicta dolor?
-                  Lorem ipsum dolor sit, amet consectetur adipisicing elit.
-                  Atque debitis, nihil quibusdam aspernatur ducimus veniam!
-                   Nobis nostrum nemo minima architecto recusandae perspiciatis
-                    nulla maxime vitae molestias assumenda cumque, dicta dolor?
-                    Lorem ipsum dolor sit, amet consectetur adipisicing elit.
-                    Atque debitis, nihil quibusdam aspernatur ducimus veniam!
-                     Nobis nostrum nemo minima architecto recusandae perspiciatis
-                      nulla maxime vitae molestias assumenda cumque, dicta dolor?
-                      Lorem ipsum dolor sit, amet consectetur adipisicing elit.
-                      Atque debitis, nihil quibusdam aspernatur ducimus veniam!
-                       Nobis nostrum nemo minima architecto recusandae perspiciatis
-                       Nobis nostrum nemo minima architecto recusandae perspiciatis
-                       nulla maxime vitae molestias assumenda cumque, dicta dolor?
-                       Lorem ipsum dolor sit, amet consectetur adipisicing elit.
-                       Atque debitis, nihil quibusdam aspernatur ducimus veniam!
-                        Nobis nostrum nemo minima architecto recusandae perspiciatis
-                        nulla maxime vitae molestias assumenda cumque, dicta dolor?
-                        Lorem ipsum dolor sit, amet consectetur adipisicing elit.
-                        Atque debitis, nihil quibusdam aspernatur ducimus veniam!</h1>
-        </div>
+                </td>
+                <td>
+                    <a href="{% url 'download_pdf' file.file.name %}" class="btn bg-red-400 rounded-xl hover:bg-red-600"><img src="/media/images/download_pdf_icon.png" alt="Download PDF" width="50px"></a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}
