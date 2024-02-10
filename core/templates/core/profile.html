@@ -90,7 +90,7 @@
                         <tbody>
                         {% for file in uploaded_files %}
                         <tr>
-                            <td>{{ file.file.name }}</td>
+                            <td><a href="{% url 'file_detail' file.id %}" class="bg-blue-200 hover:bg-blue-300 px-2">{{ file.file.name }}</a></td>
                             <td>{{ file.upload_date }}</td>
                             <td>
 

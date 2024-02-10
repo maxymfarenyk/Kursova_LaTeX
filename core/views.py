@@ -3,7 +3,7 @@ import aspose.pdf as ap
 from django.urls import reverse
 from django.conf import settings
 from django.http import HttpResponse, FileResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import Profile, UploadedFile
 from .forms import SignupForm
 
@@ -83,3 +83,7 @@ def signup(request):
     return render(request, 'core/signup.html', {
         'form': form
     })
+
+def file_details(request, file_id):
+    file_obj = get_object_or_404(UploadedFile, pk=file_id)
+    return render(request, 'core/file_details.html', {'file': file_obj})

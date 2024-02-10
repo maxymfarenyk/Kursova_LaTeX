@@ -1,0 +1,29 @@
+{% extends 'core/base.html' %}
+
+{% block title %}File Details{% endblock %}
+
+{% block content %}
+<div class="container">
+    <center>
+        <h1 class="text-xl mb-3"><strong>File Details</strong></h1>
+    </center>
+        <div class="row my-2">
+            <div class="col-md-3">
+                <p><strong>File Name:</strong> {{ file.file.name }}</p>
+                <p><strong>Author:</strong> {{ file.user.username }}</p>
+                <p><strong>Date Uploaded:</strong> {{ file.upload_date }}</p>
+            </div>
+
+
+            <div class="col-md-1">
+                <p><a href="{% url 'download_file' file.file.name %}"
+                  class="btn bg-blue-400 rounded-xl hover:bg-blue-600"><img
+                    src="/media/images/download_tex_icon.png" alt="Download" width="50px"></a></p>
+            </div>
+            <div class="col-md-1">
+                <p><a href="{% url 'download_pdf' file.file.name %}" class="btn bg-red-400 rounded-xl hover:bg-red-600"><img
+                    src="/media/images/download_pdf_icon.png" alt="Download PDF" width="50px"></a></p>
+            </div>
+        </div>
+</div>
+{% endblock %}

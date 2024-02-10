@@ -6,6 +6,7 @@ from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.views import LogoutView
 from core.forms import LoginForm
+from core import views
 
 urlpatterns = [
     path('', index, name='index'),
@@ -17,6 +18,7 @@ urlpatterns = [
     path('login/', auth_views.LoginView.as_view(template_name='core/login.html',authentication_form=LoginForm), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
     path('profile/', profile, name='profile'),
+    path('file/<int:file_id>/', views.file_details, name='file_detail'),
     path('admin/', admin.site.urls),
 ]
 
