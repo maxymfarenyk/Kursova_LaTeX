@@ -6,12 +6,18 @@ from django.http import HttpResponse, FileResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Profile, UploadedFile
 from .forms import SignupForm
+from django.db.models import Subquery, OuterRef
 
 
 def index(request):
-    uploaded_files = UploadedFile.objects.all()
-    return render(request, 'core/index.html', {'uploaded_files': uploaded_files})
+    latest_files = UploadedFile.objects.filter(
+        version=Subquery(
+            UploadedFile.objects.filter(display_name=OuterRef('display_name')).order_by('-version').values('version')[
+            :1]
+        )
+    )
 
+    return render(request, 'core/index.html', {'latest_files': latest_files})
 
 def contact(request):
     return render(request, 'core/contact.html')
@@ -33,12 +39,10 @@ def upload_latex_file(request):
                 user = request.user
             else:
                 form = SignupForm()
+                return render(request, 'core/signup.html', {'form': form})
 
-                return render(request, 'core/signup.html', {
-                    'form': form
-                })
-
-        uploaded_file_obj = UploadedFile(user=user, file=uploaded_file)
+        file_name = os.path.basename(uploaded_file.name)
+        uploaded_file_obj = UploadedFile(user=user, file=uploaded_file, display_name=file_name)
         uploaded_file_obj.save()
 
         file_path = os.path.join(settings.MEDIA_ROOT, uploaded_file.name)
@@ -46,6 +50,33 @@ def upload_latex_file(request):
         return render(request, 'core/upload_success.html', {'file_path': file_path})
     return render(request, 'core/upload.html')
 
+
+def update_file(request, file_id):
+    if request.method == 'POST':
+        uploaded_file = request.FILES['updated_file']
+        if uploaded_file:
+            if request.user.is_authenticated:
+                user = request.user
+            else:
+                form = SignupForm()
+                return render(request, 'core/signup.html', {'form': form})
+
+            # Get the existing file object
+            existing_file = UploadedFile.objects.get(pk=file_id)
+
+            # Increment version
+            new_version = existing_file.version + 1
+
+            # Create updated file object with the same display_name but new version
+            updated_file_obj = UploadedFile(user=user, file=uploaded_file, display_name=existing_file.display_name, version=new_version)
+            updated_file_obj.save()
+
+            file_path = os.path.join(settings.MEDIA_ROOT, uploaded_file.name)
+
+            return redirect('index')
+    else:
+        existing_file = UploadedFile.objects.get(pk=file_id)
+        return render(request, 'core/update_file.html', {'existing_file': existing_file})
 
 def download_file(request, file_path):
     file_path = os.path.join(settings.MEDIA_ROOT, file_path)
@@ -57,15 +88,19 @@ def download_file(request, file_path):
 
 def download_pdf(request, file_path):
     original_file_path = os.path.join(settings.MEDIA_ROOT, file_path)
+    file_name = os.path.basename(original_file_path)
+    file_display_name = os.path.splitext(file_name)[0]
+
     options = ap.TeXLoadOptions()
     document = ap.Document(original_file_path, options)
-
-    new_file_path = os.path.join(settings.MEDIA_ROOT, "newfile.pdf")
+    uploaded_file = UploadedFile.objects.get(file=file_path)
+    file_version = uploaded_file.version
+    new_file_path = os.path.join(settings.MEDIA_ROOT, f"{file_display_name}_v{file_version}.pdf")
     document.save(new_file_path)
 
     with open(new_file_path, 'rb') as file:
         response = HttpResponse(file.read(), content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="newfile.pdf"'
+        response['Content-Disposition'] = f'attachment; filename="{file_display_name}_v{file_version}.pdf"'
         return response
 
 
@@ -87,3 +122,4 @@ def signup(request):
 def file_details(request, file_id):
     file_obj = get_object_or_404(UploadedFile, pk=file_id)
     return render(request, 'core/file_details.html', {'file': file_obj})
+

@@ -14,6 +14,11 @@
                 <p><strong>Date Uploaded:</strong> {{ file.upload_date }}</p>
             </div>
 
+            {% if user.is_authenticated and user == file.user %}
+                <div class="col-md-1">
+                    <p><a href="{% url 'update_file' file_id=file.id %}" class="btn bg-green-400 rounded-xl hover:bg-green-600" style="width: 75px; height: 65px">Update</a></p>
+                </div>
+            {% endif %}
 
             <div class="col-md-1">
                 <p><a href="{% url 'download_file' file.file.name %}"

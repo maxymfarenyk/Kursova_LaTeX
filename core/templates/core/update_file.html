@@ -1,0 +1,13 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Update
+{% endblock %}
+
+{% block content %}
+<h1>The update page</h1>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="file" name="updated_file" accept=".tex" required>
+    <button type="submit" class="px-6 py-3 text-lg font-semibold bg-green-500 text-white rounded-xl hover:bg-green-700">Update LaTeX File</button>
+</form>
+{% endblock %}
