@@ -12,6 +12,7 @@
                 <p><strong>File Name:</strong> {{ file.file.name }}</p>
                 <p><strong>Author:</strong> {{ file.user.username }}</p>
                 <p><strong>Date Uploaded:</strong> {{ file.upload_date }}</p>
+                <p><strong>Version:</strong> {{ file.version }}</p>
             </div>
 
             {% if user.is_authenticated and user == file.user %}
@@ -21,14 +22,28 @@
             {% endif %}
 
             <div class="col-md-1">
-                <p><a href="{% url 'download_file' file.file.name %}"
-                  class="btn bg-blue-400 rounded-xl hover:bg-blue-600"><img
-                    src="/media/images/download_tex_icon.png" alt="Download" width="50px"></a></p>
+                <p><a href="{% url 'download_file' file.file.name %}" class="btn bg-blue-400 rounded-xl hover:bg-blue-600"><img src="/media/images/download_tex_icon.png" alt="Download" width="50px"></a></p>
             </div>
             <div class="col-md-1">
-                <p><a href="{% url 'download_pdf' file.file.name %}" class="btn bg-red-400 rounded-xl hover:bg-red-600"><img
-                    src="/media/images/download_pdf_icon.png" alt="Download PDF" width="50px"></a></p>
+                <p><a href="{% url 'download_pdf' file.file.name %}" class="btn bg-red-400 rounded-xl hover:bg-red-600"><img src="/media/images/download_pdf_icon.png" alt="Download PDF" width="50px"></a></p>
             </div>
+
+                  <!-- Випадаючий список з іншими версіями -->
+            <div class="col-md-3">
+                <div class="dropdown">
+                    <button class="btn bg-gray-400 rounded-xl hover:bg-gray-600 dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                        Versions
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        {% for version_file in all_versions %}
+                                <li><a class="dropdown-item" href="{% url 'file_detail' version_file.id %}">{{ version_file.version }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+
+
         </div>
 </div>
 {% endblock %}

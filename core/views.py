@@ -7,7 +7,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Profile, UploadedFile
 from .forms import SignupForm
 from django.db.models import Subquery, OuterRef
-
+import re
 
 def index(request):
     latest_files = UploadedFile.objects.filter(
@@ -16,7 +16,6 @@ def index(request):
             :1]
         )
     )
-
     return render(request, 'core/index.html', {'latest_files': latest_files})
 
 def contact(request):
@@ -31,6 +30,8 @@ def profile(request):
     return render(request, 'core/profile.html', {'profile': profile, 'uploaded_files': uploaded_files})
 
 
+
+
 def upload_latex_file(request):
     if request.method == 'POST':
         uploaded_file = request.FILES['latex_file']
@@ -42,13 +43,18 @@ def upload_latex_file(request):
                 return render(request, 'core/signup.html', {'form': form})
 
         file_name = os.path.basename(uploaded_file.name)
-        uploaded_file_obj = UploadedFile(user=user, file=uploaded_file, display_name=file_name)
+        # Заміна пробілів на підкреслення
+        safe_file_name = re.sub(r'\s+', '_', file_name)
+        safe_file_name = re.sub(r'[(){}[\]<>]', '', safe_file_name)
+        uploaded_file_obj = UploadedFile(user=user, file=uploaded_file, display_name=safe_file_name)
         uploaded_file_obj.save()
 
-        file_path = os.path.join(settings.MEDIA_ROOT, uploaded_file.name)
+        # Формуємо шлях файлу з екранованими назвами
+        safe_file_path = os.path.join(settings.MEDIA_ROOT, safe_file_name)
 
-        return render(request, 'core/upload_success.html', {'file_path': file_path})
+        return render(request, 'core/upload_success.html', {'file_path': safe_file_path})
     return render(request, 'core/upload.html')
+
 
 
 def update_file(request, file_id):
@@ -61,13 +67,12 @@ def update_file(request, file_id):
                 form = SignupForm()
                 return render(request, 'core/signup.html', {'form': form})
 
-            # Get the existing file object
             existing_file = UploadedFile.objects.get(pk=file_id)
 
-            # Increment version
+
             new_version = existing_file.version + 1
 
-            # Create updated file object with the same display_name but new version
+
             updated_file_obj = UploadedFile(user=user, file=uploaded_file, display_name=existing_file.display_name, version=new_version)
             updated_file_obj.save()
 
@@ -121,5 +126,5 @@ def signup(request):
 
 def file_details(request, file_id):
     file_obj = get_object_or_404(UploadedFile, pk=file_id)
-    return render(request, 'core/file_details.html', {'file': file_obj})
-
+    all_versions = UploadedFile.objects.filter(display_name=file_obj.display_name).order_by('-version')
+    return render(request, 'core/file_details.html', {'file': file_obj, 'all_versions': all_versions})
