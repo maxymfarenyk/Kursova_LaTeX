@@ -31,7 +31,6 @@ def profile(request):
 
 
 
-
 def upload_latex_file(request):
     if request.method == 'POST':
         uploaded_file = request.FILES['latex_file']
@@ -49,12 +48,8 @@ def upload_latex_file(request):
         uploaded_file_obj = UploadedFile(user=user, file=uploaded_file, display_name=safe_file_name)
         uploaded_file_obj.save()
 
-        # Формуємо шлях файлу з екранованими назвами
-        safe_file_path = os.path.join(settings.MEDIA_ROOT, safe_file_name)
-
-        return render(request, 'core/upload_success.html', {'file_path': safe_file_path})
+        return render(request, 'core/upload_success.html', {'file_path': safe_file_name})
     return render(request, 'core/upload.html')
-
 
 
 def update_file(request, file_id):
@@ -128,3 +123,8 @@ def file_details(request, file_id):
     file_obj = get_object_or_404(UploadedFile, pk=file_id)
     all_versions = UploadedFile.objects.filter(display_name=file_obj.display_name).order_by('-version')
     return render(request, 'core/file_details.html', {'file': file_obj, 'all_versions': all_versions})
+
+# def upload_success(request, file_path):
+#     file_obj = get_object_or_404(UploadedFile, pk=file_id)
+#     new_file = UploadedFile.objects.filter
+#     return render(request, 'core/upload_success.html', {'file': file_obj, 'new_file': new_file})
