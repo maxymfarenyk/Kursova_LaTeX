@@ -17,7 +17,7 @@
 
             {% if user.is_authenticated and user == file.user %}
                 <div class="col-md-1">
-                    <p><a href="{% url 'update_file' file_id=file.id %}" class="btn bg-green-400 rounded-xl hover:bg-green-600" style="width: 75px; height: 65px">Update</a></p>
+                    <p ><a href="{% url 'update_file' file_id=file.id %}" class="btn bg-green-400 rounded-xl hover:bg-green-600">Update</a></p>
                 </div>
             {% endif %}
 
@@ -31,7 +31,7 @@
                   <!-- Випадаючий список з іншими версіями -->
             <div class="col-md-3">
                 <div class="dropdown">
-                    <button class="btn bg-gray-400 rounded-xl hover:bg-gray-600 dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                    <button style="width: 100px; height: 65px" class="btn bg-gray-400 rounded-xl hover:bg-gray-600 dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
                         Versions
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">

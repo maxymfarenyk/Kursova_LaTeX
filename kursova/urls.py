@@ -20,6 +20,7 @@ urlpatterns = [
     path('profile/', profile, name='profile'),
     path('file/<int:file_id>/', views.file_details, name='file_detail'),
     path('update_file/<int:file_id>/', views.update_file, name='update_file'),
+    path('search/', views.search_files, name='search_files'),
     path('admin/', admin.site.urls),
 ]
 

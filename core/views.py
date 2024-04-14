@@ -124,7 +124,16 @@ def file_details(request, file_id):
     all_versions = UploadedFile.objects.filter(display_name=file_obj.display_name).order_by('-version')
     return render(request, 'core/file_details.html', {'file': file_obj, 'all_versions': all_versions})
 
-# def upload_success(request, file_path):
-#     file_obj = get_object_or_404(UploadedFile, pk=file_id)
-#     new_file = UploadedFile.objects.filter
-#     return render(request, 'core/upload_success.html', {'file': file_obj, 'new_file': new_file})
+def search_files(request):
+    query = request.GET.get('query')
+    if query:
+        # Знаходимо останні версії файлів, які відповідають пошуковому запиту
+        latest_files = UploadedFile.objects.filter(
+            display_name__icontains=query,
+            version=Subquery(
+                UploadedFile.objects.filter(display_name=OuterRef('display_name')).order_by('-version').values('version')[:1]
+            )
+        )
+    else:
+        latest_files = []
+    return render(request, 'core/search_results.html', {'found_files': latest_files, 'query': query})

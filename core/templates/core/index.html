@@ -4,10 +4,21 @@
 {% endblock %}
 
 {% block content %}
- <div class="container">
+<div class="container">
      <center>
-         <h1 class="text-xl mb-5"><strong>Uploaded Files</strong></h1>
+         <h1 class="text-xl mb-4"><strong>Uploaded Files</strong></h1>
      </center>
+        <div class="col-3 mb-4">
+            <form method="GET" action="{% url 'search_files' %}">
+                <div class="input-group">
+                    <input type="text" class="form-control me-1" name="query" placeholder="Search files...">
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-primary">Search</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
 
     <table class="table">
         <thead>
