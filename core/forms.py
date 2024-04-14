@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
+from .models import Comment
 
 class SignupForm(UserCreationForm):
     class Meta:
@@ -37,3 +38,8 @@ class LoginForm(AuthenticationForm):
         'placeholder': 'Your password',
         'class': 'w-full py-3 px-4 rounded-xl'
     }))
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['text']

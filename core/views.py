@@ -4,10 +4,11 @@ from django.urls import reverse
 from django.conf import settings
 from django.http import HttpResponse, FileResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Profile, UploadedFile
+from .models import Profile, UploadedFile, Comment
 from .forms import SignupForm
 from django.db.models import Subquery, OuterRef
 import re
+from .forms import CommentForm
 
 def index(request):
     latest_files = UploadedFile.objects.filter(
@@ -122,7 +123,22 @@ def signup(request):
 def file_details(request, file_id):
     file_obj = get_object_or_404(UploadedFile, pk=file_id)
     all_versions = UploadedFile.objects.filter(display_name=file_obj.display_name).order_by('-version')
-    return render(request, 'core/file_details.html', {'file': file_obj, 'all_versions': all_versions})
+
+    if request.method == 'POST':
+        comment_form = CommentForm(request.POST)
+        if comment_form.is_valid():
+            comment = comment_form.save(commit=False)
+            comment.user = request.user
+            comment.file = file_obj
+            comment.save()
+            return redirect('file_detail', file_id=file_id)
+    else:
+        comment_form = CommentForm()
+
+    # Отримання коментарів для відображення
+    comments = Comment.objects.filter(file=file_obj).order_by('-created_at')
+
+    return render(request, 'core/file_details.html', {'file': file_obj, 'all_versions': all_versions, 'comment_form': comment_form, 'comments': comments})
 
 def search_files(request):
     query = request.GET.get('query')

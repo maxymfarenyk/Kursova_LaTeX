@@ -5,45 +5,89 @@
 {% block content %}
 <div class="container">
     <center>
-        <h1 class="text-xl mb-3"><strong>File Details</strong></h1>
+        <h1 class="text-xl mb-4"><strong>File Details</strong></h1>
     </center>
-        <div class="row my-2">
-            <div class="col-md-3">
-                <p><strong>File Name:</strong> {{ file.file.name }}</p>
-                <p><strong>Author:</strong> {{ file.user.username }}</p>
-                <p><strong>Date Uploaded:</strong> {{ file.upload_date }}</p>
-                <p><strong>Version:</strong> {{ file.version }}</p>
-            </div>
-
-            {% if user.is_authenticated and user == file.user %}
-                <div class="col-md-1">
-                    <p ><a href="{% url 'update_file' file_id=file.id %}" class="btn bg-green-400 rounded-xl hover:bg-green-600">Update</a></p>
-                </div>
-            {% endif %}
-
-            <div class="col-md-1">
-                <p><a href="{% url 'download_file' file.file.name %}" class="btn bg-blue-400 rounded-xl hover:bg-blue-600"><img src="/media/images/download_tex_icon.png" alt="Download" width="50px"></a></p>
-            </div>
-            <div class="col-md-1">
-                <p><a href="{% url 'download_pdf' file.file.name %}" class="btn bg-red-400 rounded-xl hover:bg-red-600"><img src="/media/images/download_pdf_icon.png" alt="Download PDF" width="50px"></a></p>
-            </div>
-
-                  <!-- Випадаючий список з іншими версіями -->
-            <div class="col-md-3">
-                <div class="dropdown">
-                    <button style="width: 100px; height: 65px" class="btn bg-gray-400 rounded-xl hover:bg-gray-600 dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                        Versions
-                    </button>
-                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        {% for version_file in all_versions %}
-                                <li><a class="dropdown-item" href="{% url 'file_detail' version_file.id %}">{{ version_file.version }}</a></li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
-
-
-
+    <div class="row d-flex justify-content-center mt-2">
+        <div class="col-md-3">
+            <p><strong>File Name:</strong> {{ file.file.name }}</p>
+            <p><strong>Author:</strong> {{ file.user.username }}</p>
+            <p><strong>Date Uploaded:</strong> {{ file.upload_date }}</p>
+            <p><strong>Version:</strong> {{ file.version }}</p>
         </div>
+
+        <div class="col-md-1">
+            <p><a href="{% url 'download_file' file.file.name %}" class="btn bg-blue-400 rounded-xl hover:bg-blue-600"><img src="/media/images/download_tex_icon.png" alt="Download" width="50px"></a></p>
+        </div>
+        <div class="col-md-1">
+            <p><a href="{% url 'download_pdf' file.file.name %}" class="btn bg-red-400 rounded-xl hover:bg-red-600"><img src="/media/images/download_pdf_icon.png" alt="Download PDF" width="50px"></a></p>
+        </div>
+
+        {% if user.is_authenticated and user == file.user %}
+        <div class="col-md-1">
+            <p><a href="{% url 'update_file' file_id=file.id %}" class="btn bg-green-400 rounded-xl hover:bg-green-600"><img src="/media/images/update_icon.png" alt="Update" width="50px"></a></p>
+        </div>
+        {% endif %}
+        <!-- Випадаючий список з іншими версіями -->
+        <div class="col-md-1">
+            <div class="dropdown">
+                <button style="width: 100px; height: 65px" class="btn bg-gray-400 rounded-xl hover:bg-gray-600 dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                    Versions
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    {% for version_file in all_versions %}
+                    <li><a class="dropdown-item" href="{% url 'file_detail' version_file.id %}">{{ version_file.version }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+
+    </div>
+    <!-- Форма для додавання коментарів -->
+    {% if user.is_authenticated %}
+    <div class="row d-flex justify-content-center mt-4 mb-3">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title">Add Comment</h2>
+                    <form method="post" action="">
+                        {% csrf_token %}
+                        <div class="form-group mb-1">
+                            <textarea class="form-control" name="text" rows="4" placeholder="Enter your comment"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Comment</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    <!-- Відображення коментарів -->
+    <div class="row justify-content-center ">
+        <div class="col-md-8">
+            <div class="headings d-flex justify-content-between align-items-center mb-3">
+                <h2>Comments</h2>
+            </div>
+            <div class="card p-3">
+                {% if comments %}
+                    {% for comment in comments %}
+                        <div class="comment-container bg-light rounded p-3 mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="user d-flex flex-row align-items-center">
+                                    <p class="font-bold text-primary">{{ comment.user.username }}</p>
+                                    <p class="ml-2">{{ comment.text }}</p>
+                                </div>
+                                <p class="text-muted">{{ comment.created_at }}</p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">No comments yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+
 </div>
 {% endblock %}
