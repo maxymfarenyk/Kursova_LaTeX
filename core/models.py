@@ -42,6 +42,11 @@ class Comment(models.Model):
     file = models.ForeignKey(UploadedFile, on_delete=models.CASCADE, related_name='comments')
     text = models.TextField()
     created_at = models.DateTimeField(default=timezone.now)
-
+    MARK_CHOICES = [
+        ('viewed', 'Viewed'),
+        ('in_progress', 'In Progress'),
+        ('done', 'Done'),
+    ]
+    mark = models.CharField(max_length=20, choices=MARK_CHOICES, null=True, blank=True)
     def __str__(self):
         return f'Comment by {self.user.username} on {self.file.display_name}'
