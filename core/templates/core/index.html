@@ -33,7 +33,7 @@
         <tbody>
             {% for file in latest_files %}
             <tr>
-                <td><a href="{% url 'file_detail' file.id %}" class="bg-blue-200 hover:bg-blue-300 px-2">{{ file.display_name }}</a></td>
+                <td><a href="{% url 'file_detail' file.id %}" class="rounded bg-blue-200 hover:bg-blue-400 px-2">{{ file.display_name }}</a></td>
                 <td>{{ file.user.username }}</td>
                 <td>{{ file.upload_date }}</td>
                 <td>

@@ -1,8 +1,7 @@
 import os
 import aspose.pdf as ap
-from django.urls import reverse
 from django.conf import settings
-from django.http import HttpResponse, FileResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Profile, UploadedFile, Comment
 from .forms import SignupForm
@@ -24,6 +23,8 @@ def index(request):
 def contact(request):
     return render(request, 'core/contact.html')
 
+def about(request):
+    return render(request, 'core/about.html')
 
 def profile(request):
     profile = Profile.objects.get(user=request.user)
@@ -62,11 +63,7 @@ def update_file(request, file_id):
     if request.method == 'POST':
         uploaded_file = request.FILES['updated_file']
         if uploaded_file:
-            if request.user.is_authenticated:
-                user = request.user
-            else:
-                form = SignupForm()
-                return render(request, 'core/signup.html', {'form': form})
+            user = request.user
 
             existing_file = UploadedFile.objects.get(pk=file_id)
 
@@ -122,10 +119,20 @@ def signup(request):
     })
 
 
-
 def file_details(request, file_id):
     file_obj = get_object_or_404(UploadedFile, pk=file_id)
     all_versions = UploadedFile.objects.filter(display_name=file_obj.display_name).order_by('-version')
+
+    comments = Comment.objects.filter(file=file_obj).order_by('-created_at')
+
+    comment_form = CommentForm()
+
+    return render(request, 'core/file_details.html',
+                  {'file': file_obj, 'all_versions': all_versions, 'comment_form': comment_form, 'comments': comments})
+
+
+def add_comment(request, file_id):
+    file_obj = get_object_or_404(UploadedFile, pk=file_id)
 
     if request.method == 'POST':
         comment_form = CommentForm(request.POST)
@@ -135,17 +142,23 @@ def file_details(request, file_id):
             comment.file = file_obj
             comment.save()
             return redirect('file_detail', file_id=file_id)
-    else:
-        comment_form = CommentForm()
 
-    comments = Comment.objects.filter(file=file_obj).order_by('-created_at')
+    return redirect('file_detail', file_id=file_id)
+def save_comment_mark(request):
+    if request.method == 'POST':
+        comment_id = request.POST.get('comment_id')
+        mark = request.POST.get('mark')
 
-    return render(request, 'core/file_details.html', {'file': file_obj, 'all_versions': all_versions, 'comment_form': comment_form, 'comments': comments})
+        comment = Comment.objects.filter(id=comment_id, file__user=request.user).first()
+        if comment:
+            comment.mark = mark
+            comment.save()
+
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 def search_files(request):
     query = request.GET.get('query')
     if query:
-        # Знаходимо останні версії файлів, які відповідають пошуковому запиту
         latest_files = UploadedFile.objects.filter(
             display_name__icontains=query,
             version=Subquery(
@@ -156,14 +169,4 @@ def search_files(request):
         latest_files = []
     return render(request, 'core/search_results.html', {'found_files': latest_files, 'query': query})
 
-def save_comment_mark(request):
-    if request.method == 'POST' and request.user.is_authenticated:
-        comment_id = request.POST.get('comment_id')
-        mark = request.POST.get('mark')
 
-        comment = Comment.objects.filter(id=comment_id, file__user=request.user).first()
-        if comment:
-            comment.mark = mark
-            comment.save()
-
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))

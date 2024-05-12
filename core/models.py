@@ -48,5 +48,3 @@ class Comment(models.Model):
         ('done', 'Done'),
     ]
     mark = models.CharField(max_length=20, choices=MARK_CHOICES, null=True, blank=True)
-    def __str__(self):
-        return f'Comment by {self.user.username} on {self.file.display_name}'
