@@ -1,7 +1,10 @@
 import os
-import aspose.pdf as ap
+import shutil
+import subprocess
+import tarfile
+import zipfile
 from django.conf import settings
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404, HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Profile, UploadedFile, Comment
 from .forms import SignupForm
@@ -85,23 +88,95 @@ def download_file(request, file_path):
         return response
 
 
+def extract_archive(archive_path, extract_to):
+    """
+    Розпаковує архів до вказаної директорії.
+    """
+    if zipfile.is_zipfile(archive_path):
+        with zipfile.ZipFile(archive_path, 'r') as archive:
+            archive.extractall(path=extract_to)
+    elif archive_path.endswith('.tar.gz') or archive_path.endswith('.tgz'):
+        with tarfile.open(archive_path, 'r:gz') as archive:
+            archive.extractall(path=extract_to)
+    elif tarfile.is_tarfile(archive_path):
+        with tarfile.open(archive_path, 'r') as archive:
+            archive.extractall(path=extract_to)
+    else:
+        raise RuntimeError("Непідтримуваний формат архіву. Підтримуються лише ZIP, TAR та TAR.GZ файли.")
+
+
+
+def compile_with_pdflatex(tex_file_path, output_dir):
+    """
+    Використовує pdflatex для компіляції .tex файлу у PDF.
+    """
+    command = [
+        'pdflatex',
+        '-interaction=nonstopmode',
+        '-output-directory', output_dir,
+        tex_file_path
+    ]
+    try:
+        # Перша компіляція
+        subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, cwd=os.path.dirname(tex_file_path))
+        # Друга компіляція (для посилань і перехресних посилань)
+        subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, cwd=os.path.dirname(tex_file_path))
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError(f"Помилка під час виконання pdflatex: {e.stderr.decode('utf-8')}")
+
+
+
 def download_pdf(request, file_path):
     original_file_path = os.path.join(settings.MEDIA_ROOT, file_path)
     file_name = os.path.basename(original_file_path)
     file_display_name = os.path.splitext(file_name)[0]
 
-    options = ap.TeXLoadOptions()
-    document = ap.Document(original_file_path, options)
-    uploaded_file = UploadedFile.objects.get(file=file_path)
-    file_version = uploaded_file.version
-    new_file_path = os.path.join(settings.MEDIA_ROOT, f"{file_display_name}_v{file_version}.pdf")
-    document.save(new_file_path)
+    # Перевірка, чи файл існує
+    if not os.path.exists(original_file_path):
+        raise Http404("Файл не знайдено.")
 
-    with open(new_file_path, 'rb') as file:
-        response = HttpResponse(file.read())
-        response['Content-Disposition'] = f'attachment; filename="{file_display_name}_v{file_version}.pdf"'
-        return response
+    # Тимчасова директорія для роботи з файлами
+    temp_dir = os.path.join(settings.MEDIA_ROOT, 'temp', file_display_name)
+    os.makedirs(temp_dir, exist_ok=True)
 
+    try:
+        if zipfile.is_zipfile(original_file_path) or original_file_path.endswith('.tar.gz') or original_file_path.endswith('.tgz') or tarfile.is_tarfile(original_file_path):
+            # Якщо це архів, розпакувати його
+            extract_archive(original_file_path, temp_dir)
+            # Знайти головний .tex файл
+            tex_files = [f for f in os.listdir(temp_dir) if f.endswith('.tex')]
+            if not tex_files:
+                raise RuntimeError("В архіві відсутні .tex файли.")
+
+            tex_file_path = os.path.join(temp_dir, tex_files[0])
+        else:
+            # Якщо це одиничний .tex файл
+            tex_file_path = os.path.join(temp_dir, file_name)
+            shutil.copy(original_file_path, tex_file_path)
+
+        # Директорія для збереження PDF
+        output_dir = os.path.join(temp_dir, 'output')
+        os.makedirs(output_dir, exist_ok=True)
+        # Отримуємо тільки ім'я файлу без шляху (наприклад, main_arxiv.tex)
+        tex_file_name = os.path.basename(tex_file_path)
+
+        # Компіляція у PDF
+        compile_with_pdflatex(tex_file_path, output_dir)
+
+        # Знайти згенерований PDF
+        pdf_file_path = os.path.join(output_dir, f"{os.path.splitext(tex_file_name)[0]}.pdf")
+        if not os.path.exists(pdf_file_path):
+            raise RuntimeError("PDF файл не був створений.")
+
+        # Завантаження згенерованого PDF
+        with open(pdf_file_path, 'rb') as pdf_file:
+            response = HttpResponse(pdf_file.read(), content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="{file_display_name}.pdf"'
+            return response
+
+    finally:
+        # Очистка тимчасових файлів
+        shutil.rmtree(temp_dir, ignore_errors=True)
 
 def signup(request):
     if request.method == 'POST':
@@ -169,4 +244,28 @@ def search_files(request):
         latest_files = []
     return render(request, 'core/search_results.html', {'found_files': latest_files, 'query': query})
 
+import os
+
+def delete_file(request, file_id):
+    try:
+        file_obj = UploadedFile.objects.get(pk=file_id)
+    except UploadedFile.DoesNotExist:
+        raise Http404("Файл не знайдено.")
+
+    # Перевіряємо, чи є користувач автором файлу
+    if file_obj.user != request.user:
+        return HttpResponseForbidden("У вас немає прав для видалення цього файлу.")
+
+    # Збереження шляху до файлу перед видаленням з бази даних
+    file_path = file_obj.file.path
+
+    # Видалення запису з бази даних
+    file_obj.delete()
+
+    # Видалення фізичного файлу
+    if os.path.exists(file_path):
+        os.remove(file_path)
+
+    # Повернення користувача на головну сторінку після видалення
+    return redirect('index')
 

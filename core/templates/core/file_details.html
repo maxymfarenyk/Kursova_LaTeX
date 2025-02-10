@@ -27,6 +27,14 @@
         <div class="col-md-1">
             <p><a href="{% url 'update_file' file_id=file.id %}" class="btn bg-green-400 rounded-xl hover:bg-green-600"><img src="/media/images/update_icon.png" alt="Update" width="50px"></a></p>
         </div>
+        <div class="col-md-1">
+            <form method="post" action="{% url 'delete_file' file_id=file.id %}" onsubmit="return confirm('Are you sure you want to delete this file?');">
+                {% csrf_token %}
+                <button type="submit" class="btn bg-red-400 rounded-xl hover:bg-red-600">
+                    <img src="/media/images/delete_icon.png" alt="Delete" width="50px">
+                </button>
+            </form>
+        </div>
         {% endif %}
         <!-- Випадаючий список з іншими версіями -->
         <div class="col-md-1">
