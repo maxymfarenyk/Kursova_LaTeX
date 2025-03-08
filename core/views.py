@@ -112,9 +112,9 @@ def compile_with_pdflatex(tex_file_path, output_dir):
     ]
     try:
         # Перша компіляція
-        subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, cwd=os.path.dirname(tex_file_path))
+        subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=os.path.dirname(tex_file_path))
         # Друга компіляція (для посилань і перехресних посилань)
-        subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, cwd=os.path.dirname(tex_file_path))
+        subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=os.path.dirname(tex_file_path))
     except subprocess.CalledProcessError as e:
         raise RuntimeError(f"Помилка під час виконання pdflatex: {e.stderr.decode('utf-8')}")
 
