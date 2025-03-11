@@ -121,38 +121,37 @@ def compile_with_pdflatex(tex_file_path, output_dir):
 
 
 def download_pdf(request, file_path):
-    original_file_path = os.path.join(settings.MEDIA_ROOT, file_path)
-    file_name = os.path.basename(original_file_path)
-    file_display_name = os.path.splitext(file_name)[0]
+    long_path = os.path.join(settings.MEDIA_ROOT, file_path)
+    short_name = os.path.splitext(file_path)[0]
 
     # Перевірка, чи файл існує
-    if not os.path.exists(original_file_path):
+    if not os.path.exists(long_path):
         raise Http404("Файл не знайдено.")
 
     # Директорія для збереження PDF
-    output_dir = os.path.join(settings.MEDIA_ROOT, 'pdf_generated', file_display_name)
+    output_dir = os.path.join(settings.MEDIA_ROOT, 'pdf_generated', short_name)
     os.makedirs(output_dir, exist_ok=True)
 
     pdf_files = [f for f in os.listdir(output_dir) if f.endswith(".pdf")]
     if pdf_files:
         pdf_file_path = os.path.join(output_dir, pdf_files[0])
-        return download_generated_pdf(pdf_file_path, file_display_name)
+        return download_generated_pdf(pdf_file_path, short_name)
 
     else:
-        return generate_pdf(original_file_path, file_name, file_display_name, output_dir)
+        return generate_pdf(long_path, file_path, short_name, output_dir)
 
 
-def generate_pdf(original_file_path, file_name, file_display_name, output_dir):
+def generate_pdf(long_path, file_path, short_name, output_dir):
 
     # Тимчасова директорія для роботи з файлами
-    temp_dir = os.path.join(settings.MEDIA_ROOT, 'temp', file_display_name)
+    temp_dir = os.path.join(settings.MEDIA_ROOT, 'temp', short_name)
     os.makedirs(temp_dir, exist_ok=True)
 
     try:
-        if zipfile.is_zipfile(original_file_path) or original_file_path.endswith(
-                '.tar.gz') or original_file_path.endswith('.tgz') or tarfile.is_tarfile(original_file_path):
+        if zipfile.is_zipfile(long_path) or long_path.endswith(
+                '.tar.gz') or long_path.endswith('.tgz') or tarfile.is_tarfile(long_path):
             # Якщо це архів, розпакувати його
-            extract_archive(original_file_path, temp_dir)
+            extract_archive(long_path, temp_dir)
             # Знайти головний .tex файл
             tex_files = [f for f in os.listdir(temp_dir) if f.endswith('.tex')]
             if not tex_files:
@@ -161,8 +160,8 @@ def generate_pdf(original_file_path, file_name, file_display_name, output_dir):
             tex_file_path = os.path.join(temp_dir, tex_files[0])
         else:
             # Якщо це одиничний .tex файл
-            tex_file_path = os.path.join(temp_dir, file_name)
-            shutil.copy(original_file_path, tex_file_path)
+            tex_file_path = os.path.join(temp_dir, file_path)
+            shutil.copy(long_path, tex_file_path)
 
         # Отримуємо тільки ім'я файлу без шляху (наприклад, main_arxiv.tex)
         tex_file_name = os.path.basename(tex_file_path)
@@ -173,16 +172,16 @@ def generate_pdf(original_file_path, file_name, file_display_name, output_dir):
         # Знайти згенерований PDF
         pdf_file_path = os.path.join(output_dir, f"{os.path.splitext(tex_file_name)[0]}.pdf")
 
-        return download_generated_pdf(pdf_file_path, file_display_name)
+        return download_generated_pdf(pdf_file_path, short_name)
 
     finally:
         # Очистка тимчасових файлів
         shutil.rmtree(temp_dir, ignore_errors=True)
 
-def download_generated_pdf(pdf_file_path, file_display_name):
+def download_generated_pdf(pdf_file_path, short_name):
     with open(pdf_file_path, 'rb') as pdf_file:
         response = HttpResponse(pdf_file.read(), content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="{file_display_name}.pdf"'
+        response['Content-Disposition'] = f'attachment; filename="{short_name}.pdf"'
         return response
 
 def signup(request):
