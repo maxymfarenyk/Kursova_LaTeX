@@ -25,6 +25,7 @@ urlpatterns = [
     path('file/<int:file_id>/add_comment/', views.add_comment, name='add_comment'),
     path('save_comment_mark/', views.save_comment_mark, name='save_comment_mark'),
     path('delete_file/<int:file_id>/', views.delete_file, name='delete_file'),
+    path('view_pdf/<int:file_id>/', views.view_pdf, name='view_pdf'),
     path('admin/', admin.site.urls),
 ]
 

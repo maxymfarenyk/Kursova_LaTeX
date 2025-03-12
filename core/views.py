@@ -12,6 +12,7 @@ from django.db.models import Subquery, OuterRef
 import re
 from .forms import CommentForm
 
+
 def index(request):
     latest_files = UploadedFile.objects.filter(
         version=Subquery(
@@ -20,14 +21,16 @@ def index(request):
         )
     ).order_by('-upload_date')
 
-
     return render(request, 'core/index.html', {'latest_files': latest_files})
+
 
 def contact(request):
     return render(request, 'core/contact.html')
 
+
 def about(request):
     return render(request, 'core/about.html')
+
 
 def profile(request):
     profile = Profile.objects.get(user=request.user)
@@ -39,7 +42,6 @@ def profile(request):
         user=request.user
     ).order_by('-upload_date')
     return render(request, 'core/profile.html', {'profile': profile, 'uploaded_files': uploaded_files})
-
 
 
 def upload_latex_file(request):
@@ -72,13 +74,15 @@ def update_file(request, file_id):
 
             new_version = existing_file.version + 1
 
-            updated_file_obj = UploadedFile(user=user, file=uploaded_file, display_name=existing_file.display_name, version=new_version)
+            updated_file_obj = UploadedFile(user=user, file=uploaded_file, display_name=existing_file.display_name,
+                                            version=new_version)
             updated_file_obj.save()
 
             return redirect('index')
     else:
         existing_file = UploadedFile.objects.get(pk=file_id)
         return render(request, 'core/update_file.html', {'existing_file': existing_file})
+
 
 def download_file(request, file_path):
     file_path = os.path.join(settings.MEDIA_ROOT, file_path)
@@ -99,8 +103,7 @@ def extract_archive(archive_path, extract_to):
         with tarfile.open(archive_path, 'r') as archive:
             archive.extractall(path=extract_to)
     else:
-        raise RuntimeError("Непідтримуваний формат архіву. Підтримуються лише ZIP, TAR та TAR.GZ файли.")
-
+        raise RuntimeError("This archive type is not supported. You can use only ZIP, TAR and TAR.GZ archives")
 
 
 def compile_with_pdflatex(tex_file_path, output_dir):
@@ -116,33 +119,46 @@ def compile_with_pdflatex(tex_file_path, output_dir):
         # Друга компіляція (для посилань і перехресних посилань)
         subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=os.path.dirname(tex_file_path))
     except subprocess.CalledProcessError as e:
-        raise RuntimeError(f"Помилка під час виконання pdflatex: {e.stderr.decode('utf-8')}")
-
+        raise RuntimeError(f"Error during pdflatex execution: {e.stderr.decode('utf-8')}")
 
 
 def download_pdf(request, file_path):
-    long_path = os.path.join(settings.MEDIA_ROOT, file_path)
+    short_name = os.path.splitext(file_path)[0]
+    pdf_file_path, short_name = get_or_generate_pdf_directory(file_path, short_name)
+    return download_generated_pdf(pdf_file_path, short_name)
+
+
+def view_pdf(request, file_id):
+    file_obj = get_object_or_404(UploadedFile, pk=file_id)
+    file_path = file_obj.file.name
     short_name = os.path.splitext(file_path)[0]
 
-    # Перевірка, чи файл існує
-    if not os.path.exists(long_path):
-        raise Http404("Файл не знайдено.")
+    pdf_file_path, _ = get_or_generate_pdf_directory(file_path, short_name)
 
-    # Директорія для збереження PDF
+    with open(pdf_file_path, 'rb') as pdf_file:
+        response = HttpResponse(pdf_file.read(), content_type='application/pdf')
+        response['Content-Disposition'] = f'inline; filename="{short_name}.pdf"'
+        return response
+
+
+def get_or_generate_pdf_directory(file_path, short_name=None):
+    if short_name is None:
+        short_name = os.path.splitext(file_path)[0]
+
+    long_path = os.path.join(settings.MEDIA_ROOT, file_path)
     output_dir = os.path.join(settings.MEDIA_ROOT, 'pdf_generated', short_name)
     os.makedirs(output_dir, exist_ok=True)
 
     pdf_files = [f for f in os.listdir(output_dir) if f.endswith(".pdf")]
     if pdf_files:
         pdf_file_path = os.path.join(output_dir, pdf_files[0])
-        return download_generated_pdf(pdf_file_path, short_name)
-
     else:
-        return generate_pdf(long_path, file_path, short_name, output_dir)
+        pdf_file_path = generate_pdf(long_path, file_path, short_name, output_dir)
+
+    return pdf_file_path, short_name
 
 
 def generate_pdf(long_path, file_path, short_name, output_dir):
-
     # Тимчасова директорія для роботи з файлами
     temp_dir = os.path.join(settings.MEDIA_ROOT, 'temp', short_name)
     os.makedirs(temp_dir, exist_ok=True)
@@ -150,39 +166,38 @@ def generate_pdf(long_path, file_path, short_name, output_dir):
     try:
         if zipfile.is_zipfile(long_path) or long_path.endswith(
                 '.tar.gz') or long_path.endswith('.tgz') or tarfile.is_tarfile(long_path):
-            # Якщо це архів, розпакувати його
+
             extract_archive(long_path, temp_dir)
             # Знайти головний .tex файл
             tex_files = [f for f in os.listdir(temp_dir) if f.endswith('.tex')]
             if not tex_files:
-                raise RuntimeError("В архіві відсутні .tex файли.")
+                raise RuntimeError("No .tex files in this archive.")
 
             tex_file_path = os.path.join(temp_dir, tex_files[0])
         else:
-            # Якщо це одиничний .tex файл
+
             tex_file_path = os.path.join(temp_dir, file_path)
             shutil.copy(long_path, tex_file_path)
 
         # Отримуємо тільки ім'я файлу без шляху (наприклад, main_arxiv.tex)
         tex_file_name = os.path.basename(tex_file_path)
 
-        # Компіляція у PDF
         compile_with_pdflatex(tex_file_path, output_dir)
 
-        # Знайти згенерований PDF
         pdf_file_path = os.path.join(output_dir, f"{os.path.splitext(tex_file_name)[0]}.pdf")
 
-        return download_generated_pdf(pdf_file_path, short_name)
+        return pdf_file_path
 
     finally:
-        # Очистка тимчасових файлів
         shutil.rmtree(temp_dir, ignore_errors=True)
+
 
 def download_generated_pdf(pdf_file_path, short_name):
     with open(pdf_file_path, 'rb') as pdf_file:
         response = HttpResponse(pdf_file.read(), content_type='application/pdf')
         response['Content-Disposition'] = f'attachment; filename="{short_name}.pdf"'
         return response
+
 
 def signup(request):
     if request.method == 'POST':
@@ -209,7 +224,10 @@ def file_details(request, file_id):
     comment_form = CommentForm()
 
     return render(request, 'core/file_details.html',
-                  {'file': file_obj, 'all_versions': all_versions, 'comment_form': comment_form, 'comments': comments})
+                  {'file': file_obj,
+                   'all_versions': all_versions,
+                   'comment_form': comment_form,
+                   'comments': comments})
 
 
 def add_comment(request, file_id):
@@ -225,6 +243,8 @@ def add_comment(request, file_id):
             return redirect('file_detail', file_id=file_id)
 
     return redirect('file_detail', file_id=file_id)
+
+
 def save_comment_mark(request):
     if request.method == 'POST':
         comment_id = request.POST.get('comment_id')
@@ -237,30 +257,34 @@ def save_comment_mark(request):
 
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+
 def search_files(request):
     query = request.GET.get('query')
     if query:
         latest_files = UploadedFile.objects.filter(
             display_name__icontains=query,
             version=Subquery(
-                UploadedFile.objects.filter(display_name=OuterRef('display_name')).order_by('-version').values('version')[:1]
+                UploadedFile.objects.filter(display_name=OuterRef('display_name')).order_by('-version').values(
+                    'version')[:1]
             )
         )
     else:
         latest_files = []
     return render(request, 'core/search_results.html', {'found_files': latest_files, 'query': query})
 
+
 import os
+
 
 def delete_file(request, file_id):
     try:
         file_obj = UploadedFile.objects.get(pk=file_id)
     except UploadedFile.DoesNotExist:
-        raise Http404("Файл не знайдено.")
+        raise Http404("File is not found.")
 
     # Перевіряємо, чи є користувач автором файлу
     if file_obj.user != request.user:
-        return HttpResponseForbidden("У вас немає прав для видалення цього файлу.")
+        return HttpResponseForbidden("You don't have permission for this file.")
 
     # Збереження шляху до файлу перед видаленням з бази даних
     file_path = file_obj.file.path
@@ -274,4 +298,3 @@ def delete_file(request, file_id):
 
     # Повернення користувача на головну сторінку після видалення
     return redirect('index')
-

@@ -52,6 +52,14 @@
 
 
     </div>
+
+    <!-- Перегляд PDF -->
+    <div class="d-flex justify-content-center my-5">
+        <div class="pdf-container" style="height: 700px; width: 60%; border: 10px solid black;">
+            <embed src="{% url 'view_pdf' file.id %}" type="application/pdf" width="100%" height="100%">
+        </div>
+    </div>
+
     <!-- Форма для додавання коментарів -->
     {% if user.is_authenticated %}
     <div class="row d-flex justify-content-center mt-4 mb-3">
