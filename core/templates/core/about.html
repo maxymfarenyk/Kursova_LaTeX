@@ -1,0 +1,30 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}About{% endblock %}
+
+{% block content %}
+<div class="flex flex-col items-center justify-center h-[600px] bg-gray-100">
+  <div class="max-w-4xl p-8 bg-white rounded-lg shadow-md">
+    <h1 class="text-3xl font-bold mb-6 text-center">About</h1>
+    <p class="text-gray-700 text-lg leading-relaxed mb-4">
+    Welcome to the LaTeX Files Publication System, a platform designed to enhance accessibility to LaTeX documents.
+        LaTeX, renowned for its robust typesetting capabilities, particularly in mathematical expressions, has long been favored
+        by researchers and academics. However, its adoption has often been hindered by the necessity for specialized software
+        for viewing, editing, and compiling LaTeX files.
+    </p>
+    <p class="text-gray-700 text-lg leading-relaxed mb-4">
+      This platform addresses this challenge head-on by providing a seamless solution for both experienced
+        LaTeX users and newcomers alike. With this system, users can effortlessly search and view LaTeX documents
+        without the need for dedicated LaTeX editors or compilers. We recognize the importance of accessibility
+        and aim to make LaTeX publications readily available to a wider audience.
+    </p>
+    <p class="text-gray-700 text-lg leading-relaxed mb-4">
+      Whether you're a student, researcher, or professional, the LaTeX Files Publication System empowers you
+        to harness the full potential of LaTeX without the barriers of specialized software.
+        Join us in revolutionizing the way LaTeX documents are accessed and shared.
+        Experience the future of LaTeX publication today.
+    </p>
+  </div>
+</div>
+{% endblock %}

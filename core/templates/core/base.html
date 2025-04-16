@@ -3,7 +3,8 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
         <script src="https://cdn.tailwindcss.com"></script>
         <title>LatexFiles | {% block title %}{% endblock %}</title>
     </head>
@@ -13,8 +14,14 @@
             
             <div class="space-x-6">
                 <a href="/upload" class="text-lg font-semibold hover:text-gray-500">Upload New</a>
-                <a href="#" class="px-6 py-3 text-lg font-semibold bg-blue-500 text-white rounded-xl hover:bg-blue-700">Sign Up</a>
-                <a href="#" class="px-6 py-3 text-lg font-semibold bg-gray-500 text-white rounded-xl hover:bg-gray-700">Log in</a>
+                
+                {% if request.user.is_authenticated %}
+                    <a href="{% url 'profile' %}" class="px-6 py-3 text-lg font-semibold bg-blue-500 text-white rounded-xl hover:bg-blue-700">Profile</a>
+                    <a href="{% url 'logout' %}" class="pe-6 ps-2 py-3 text-lg font-semibold hover:text-gray-500">Log out</a>
+                {% else %}
+                    <a href="/signup" class="px-6 py-3 text-lg font-semibold bg-blue-500 text-white rounded-xl hover:bg-blue-700">Sign Up</a>
+                    <a href="/login" class="px-6 py-3 text-lg font-semibold bg-gray-500 text-white rounded-xl hover:bg-gray-700">Log in</a>
+                {% endif %}
             </div>
         </nav>
         <div class="px-6 py-6">
@@ -34,7 +41,7 @@
                 <h3 class="mb-5 font-semibold text-gray-400">Menu</h3>
 
                 <ul class="space-y-2">
-                    <li><a href="#" class="text-lg text-blue-500 hover:text-blue-700">About</a></li>
+                    <li><a href="/about" class="text-lg text-blue-500 hover:text-blue-700">About</a></li>
                     <li><a href="/contact" class="text-lg text-blue-500 hover:text-blue-700">Contact</a></li>
                 </ul>
             </div>

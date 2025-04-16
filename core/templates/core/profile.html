@@ -1,0 +1,119 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Profile
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-5">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+
+                            <center>
+                                <img src="/media/images/profilepic.jpg" alt="Profile Picture" width="125px">
+                            </center>
+
+                        </div>
+                    </div>
+                    <div class="row my-3">
+                        <div class="col ">
+                            <center>
+                                <h4 class="text-xl font-semibold">Profile</h4>
+                            </center>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+
+                            <hr>
+
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-md-4 bg-blue-300 rounded text-lg py-1 mx-3">
+
+                            <label class="font-semibold">Username:</label>
+                            <div class="form-group">
+                                {{ profile.username }}
+
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+
+                        </div>
+                        <div class="col-md-6 bg-blue-300 rounded text-lg py-1">
+
+                            <label class="font-semibold">Email:</label>
+                            <div class="form-group">
+                                {{ profile.email }}
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+        <div class="col-md-7">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+
+                        </div>
+                    </div>
+                    <div class="row my-3">
+                        <div class="col">
+                            <center>
+                                <h4 class="text-xl font-semibold ">Uploaded files</h4>
+                            </center>
+                        </div>
+                    </div>
+
+                    <table class="table">
+                        <thead>
+                        <tr>
+
+                            <th>File Name</th>
+                            <th>Uploaded At</th>
+                            <th>Download</th>
+                            <th>Download PDF</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for file in uploaded_files %}
+                        <tr>
+                            <td><a href="{% url 'file_detail' file.id %}" class="rounded bg-blue-200 hover:bg-blue-400 px-2">{{ file.display_name }}</a></td>
+                            <td>{{ file.upload_date }}</td>
+                            <td>
+
+                                <a href="{% url 'download_file' file.file.name %}"
+                                   class="btn bg-blue-400 rounded-xl hover:bg-blue-600"><img
+                                        src="/media/images/download_tex_icon.png" alt="Download" width="50px"></a>
+
+                            </td>
+                            <td>
+
+                                <a href="{% url 'download_pdf' file.file.name %}"
+                                   class="btn bg-red-400 rounded-xl hover:bg-red-600"><img
+                                        src="/media/images/download_pdf_icon.png" alt="Download PDF" width="50px">
+                                </a>
+
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Search Results
+{% endblock %}
+
+{% block content %}
+<div class="container">
+     <center>
+         <h1 class="text-xl mb-3"><strong>Uploaded Files</strong></h1>
+         <h1 class="text-xl mb-4"><strong>Search Results for "{{ query }}"</strong></h1>
+     </center>
+    <div class="col-3 mb-4">
+        <form method="GET" action="{% url 'search_files' %}">
+            <div class="input-group">
+                <input type="text" class="form-control me-1" name="query" placeholder="Search files...">
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </div>
+            </div>
+        </form>
+    </div>
+   <table class="table">
+        <thead>
+            <tr>
+                <th>File Name</th>
+                <th>Author</th>
+                <th>Date Uploaded</th>
+                <th>Download</th>
+                <th>Download PDF</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if found_files %}
+                {% for file in found_files %}
+                <tr>
+                    <td><a href="{% url 'file_detail' file.id %}" class="bg-blue-200 hover:bg-blue-300 px-2">{{ file.display_name }}</a></td>
+                    <td>{{ file.user.username }}</td>
+                    <td>{{ file.upload_date }}</td>
+                    <td>
+                        <a href="{% url 'download_file' file.file.name %}" class="btn bg-blue-400 rounded-xl hover:bg-blue-600"><img src="/media/images/download_tex_icon.png" alt="Download" width="50px"></a>
+                    </td>
+                    <td>
+                        <a href="{% url 'download_pdf' file.file.name %}" class="btn bg-red-400 rounded-xl hover:bg-red-600"><img src="/media/images/download_pdf_icon.png" alt="Download PDF" width="50px"></a>
+                    </td>
+                </tr>
+
+                {% endfor %}
+            {% else %}
+                <p>No files found for "{{ query }}".</p>
+            {% endif %}
+        </tbody>
+    </table>
+
+</div>
+
+{% endblock %}
