@@ -24,17 +24,12 @@ class UploadedFile(models.Model):
     file = models.FileField(upload_to='')
     display_name = models.CharField(max_length=255)
     upload_date = models.DateTimeField(auto_now_add=True)
-    version = models.PositiveIntegerField(default=1)  # Поле для відстеження версій
+    version = models.PositiveIntegerField(default=1)
 
     def save(self, *args, **kwargs):
-        # Шукаємо останню версію файлу для цього користувача та файлу
-        latest_version = UploadedFile.objects.filter(user=self.user, display_name=self.display_name).order_by(
-            '-version').first()
-
-        # Якщо остання версія існує, збільшуємо версію на 1
+        latest_version = UploadedFile.objects.filter(user=self.user, display_name=self.display_name).order_by('-version').first()
         if latest_version:
             self.version = latest_version.version + 1
-
         super(UploadedFile, self).save(*args, **kwargs)
 
 class Comment(models.Model):
