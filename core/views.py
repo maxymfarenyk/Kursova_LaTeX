@@ -107,19 +107,30 @@ def extract_archive(archive_path, extract_to):
 
 
 def compile_with_pdflatex(tex_file_path, output_dir):
-    command = [
+    tex_filename = os.path.basename(tex_file_path)
+    tex_name_no_ext = os.path.splitext(tex_filename)[0]
+    cwd = os.path.dirname(tex_file_path)
+
+    pdflatex_command = [
         'pdflatex',
         '-interaction=nonstopmode',
         '-output-directory', output_dir,
         tex_file_path
     ]
+
+    biber_command = [
+        'biber',
+        '--output-directory', output_dir,
+        tex_name_no_ext
+    ]
+
     try:
-        # Перша компіляція
-        subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=os.path.dirname(tex_file_path))
-        # Друга компіляція (для посилань і перехресних посилань)
-        subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=os.path.dirname(tex_file_path))
+        subprocess.run(pdflatex_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cwd)
+        subprocess.run(biber_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cwd)
+        subprocess.run(pdflatex_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cwd)
+
     except subprocess.CalledProcessError as e:
-        raise RuntimeError(f"Error during pdflatex execution: {e.stderr.decode('utf-8')}")
+        raise RuntimeError(f"Error during LaTeX compilation: {e.stderr.decode(errors='ignore')}")
 
 
 def download_pdf(request, file_path):
@@ -232,7 +243,6 @@ def file_details(request, file_id):
 
 def add_comment(request, file_id):
     file_obj = get_object_or_404(UploadedFile, pk=file_id)
-
     if request.method == 'POST':
         comment_form = CommentForm(request.POST)
         if comment_form.is_valid():
@@ -241,7 +251,6 @@ def add_comment(request, file_id):
             comment.file = file_obj
             comment.save()
             return redirect('file_detail', file_id=file_id)
-
     return redirect('file_detail', file_id=file_id)
 
 
@@ -273,28 +282,17 @@ def search_files(request):
     return render(request, 'core/search_results.html', {'found_files': latest_files, 'query': query})
 
 
-import os
-
-
 def delete_file(request, file_id):
     try:
         file_obj = UploadedFile.objects.get(pk=file_id)
     except UploadedFile.DoesNotExist:
         raise Http404("File is not found.")
 
-    # Перевіряємо, чи є користувач автором файлу
     if file_obj.user != request.user:
         return HttpResponseForbidden("You don't have permission for this file.")
 
-    # Збереження шляху до файлу перед видаленням з бази даних
     file_path = file_obj.file.path
-
-    # Видалення запису з бази даних
     file_obj.delete()
-
-    # Видалення фізичного файлу
     if os.path.exists(file_path):
         os.remove(file_path)
-
-    # Повернення користувача на головну сторінку після видалення
     return redirect('index')
