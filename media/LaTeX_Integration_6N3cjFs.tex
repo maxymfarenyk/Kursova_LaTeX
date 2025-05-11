@@ -1,0 +1,491 @@
+\documentclass[a4paper,14pt]{extarticle}
+% Кодування та шрифти
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage[ukrainian]{babel}
+
+% Пакети для геометрії та стилю
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{setspace}
+\usepackage{fancyhdr}
+\usepackage{enumitem}
+
+% Для роботи з титулами і таблицею змісту
+\usepackage{titletoc}
+
+% Для коду та графіки
+\usepackage{listings}
+
+% Для математичних команд
+\usepackage{amsmath}
+
+
+\title{Інтеграція та розробка платформи для керування публікаціями за допомогою LaTeX}
+\author{Фареник М.В.}
+\date{Львів-2025}
+
+\renewcommand{\baselinestretch}{1.5}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[R]{\thepage} 
+\setlength{\headheight}{17pt}
+\addtolength{\topmargin}{-3pt}
+\renewcommand{\headrulewidth}{0pt} 
+
+
+\titlecontents{section}[0em]{}{\thecontentslabel}{ \hspace{1em}}{\titlerule*[0.5pc]{.}\hspace{1em}\normalfont\thecontentspage}
+
+\titlecontents{subsection}[2em]{}{\thecontentslabel}{ \hspace{1em}}{\titlerule*[0.5pc]{.}\hspace{1em}\normalfont\thecontentspage}
+
+
+\renewcommand{\thesection}{\large\arabic{section}}
+\renewcommand{\thesubsection}{\large\arabic{section}.\arabic{subsection} }
+
+\lstdefinestyle{mystyle}{
+    basicstyle=\ttfamily\small\linespread{1.5},       
+    breaklines=true,                                                  
+    numbers=left,                       
+}
+
+\numberwithin{figure}{section}
+\renewcommand{\figurename}{Рис.}
+
+\begin{document}
+    
+    \begin{titlepage}
+        \begin{center}
+        
+        \footnotesize\textbf{ ЛЬВІВСЬКИЙ НАЦІОНАЛЬНИЙ УНІВЕРСИТЕТ ІМЕНІ ІВАНА ФРАНКА}
+        
+        \vspace{0.5cm}
+        \textbf{ ФАКУЛЬТЕТ ПРИКЛАДНОЇ МАТЕМАТИКИ ТА ІНФОРМАТИКИ}
+        
+        \vspace{0.5cm}
+        
+        \hspace*{8cm}
+        \small{Кафедра теорії оптимальних процесів}
+        
+        \vspace{3cm}
+        \begin{spacing}{1} 
+            \textbf{\Large ДИПЛОМНА РОБОТА}
+            
+            \large на тему:  "Інтеграція та розробка платформи для керування публікаціями за допомогою LaTeX"
+        \end{spacing}
+        
+        \vspace{2cm}
+        \hspace*{8cm}
+        \begin{minipage}{0.7\textwidth} 
+            \begin{flushleft}
+                \normalsize\textbf{Виконав:} \\
+                студент 4 курсу групи ПМа-41, \\
+                спеціальності ``системний аналіз'' \\
+                Фареник М.В. \\
+                \textbf{Керівник:} Демидюк М.В. \\
+                Національна шкала: \underline{\hspace{2cm}} \\
+                Кількість балів: \underline{\hspace{1cm}} \\
+                Оцінка ECTS: \underline{\hspace{1cm}}
+            \end{flushleft}
+        \end{minipage}
+        
+        
+        \vspace{0.5cm}
+        \begin{spacing}{1}
+            \normalsize\textbf{Члени комісії}
+            
+            \hspace*{8cm}
+            \begin{tabular}{p{3cm} p{5cm}}
+                \\
+                \underline{\hspace{2cm}} & \underline{\hspace{4cm}} \\
+                (підпис) & (прізвище та ініціали) \\
+                \\
+                \underline{\hspace{2cm}} & \underline{\hspace{4cm}} \\
+                (підпис) & (прізвище та ініціали) \\
+                \\
+                \underline{\hspace{2cm}} & \underline{\hspace{4cm}} \\
+                (підпис) & (прізвище та ініціали) \\
+            \end{tabular}
+        \end{spacing}
+        \vfill
+        \small Львів - 2025
+        \end{center}
+    \end{titlepage}
+    
+    \newpage
+    \setcounter{page}{2}
+    \begin{center}
+        \renewcommand{\contentsname}{\large{ЗМІСТ}}
+        \tableofcontents
+    \end{center}
+    
+    \newpage
+    
+    \begin{center}
+        \section*{\large ВСТУП}
+    \end{center}
+    \addcontentsline{toc}{section}{\protect\numberline{}\large ВСТУП}
+
+    Темою дипломної роботи я обрав інтеграцію та розробку платформи для керування публікаціями за допомогою LaTeX. Мова розмітки даних TeX є загальновизнаним стандартом для публікації наукових робіт, особливо у галузях точних наук, до прикладу, математика та інформатика. Головною особливістю та перевагою TeX, у порівнянні, наприклад, із Microsoft Word, є зручність у написанні математичних формул. Крім того, для TeX існує макропакет (набір із макросів) LaTeX, який містить готові команди для роботи із текстом, таблицями, бібліографією тощо. 
+    
+    LaTeX надає можливість зручного керування оформленням документа, що є дуже важливим для публікації роботи у науковому журналі чи книзі, оскільки вони, як правило, повинні відповідати певним вимогам щодо оформлення. Прикладами використання LaTeX можна назвати arXiv.org (найбільший безкоштовний архів наукових публікацій) та JANA (Журнал Прикладного та Чисельного Аналізу). 
+
+    Однак багато користувачів, які не звикли працювати з цією мовою розмітки, не можуть навіть переглянути такі документи без спеціального програмного забезпечення, такого як TeXmaker чи TeXstudio. Саме тому актуальною є розробка системи, яка дозволяє імпортувати, зберігати, переглядати (без необхідності встановлення додаткового ПЗ) та експортувати TeX-документи як в оригінальному форматі чи архіві, так і у форматі PDF. Така система буде корисною для авторів наукових робіт, студентів і звичайних користувачів, які працюють із TeX-документами.
+    
+    \newpage
+    
+    \begin{center}
+        \section{\large \ РОЗРОБКА} 
+    \end{center}
+    \subsection{\large Використані технології}
+    
+    Для розробки веб-застосунку було використано мову програмування Python та фреймворк Django. Ці технології було обрано через їхню простоту, поширеність та високий рівень безпеки. Python відомий своїм лаконічним синтаксисом, а Django --- наданням готових інструментів, які значно прискорюють процес розробки. Крім того, наявність великої кількості різноманітних бібліотек полегшує вирішення вузькоспеціалізованих задач. Також Django містить вбудовані механізми захисту, що робить його надійним вибором для створення безпечних застосунків.
+
+    Для зберігання даних було використано реляційну базу даних SQLite. Основною перевагою SQLite є те, що вона вбудована у фреймворк Django, що, своєю чергою, значно спрощує роботу з нею. Наприклад, фреймворк автоматично створює деякі таблиці, такі як таблиці користувачів, сесій, міграцій та інші.
+
+    Для перетворення TeX-документів у PDF-формат було використано компілятор pdflatex. Це розширення для LaTeX, яке замість того, щоб створювати DVI (Device Independent File), генерує PDF-файл безпосередньо з LaTeX-коду.
+
+    Для контролю над версіями застосунку було використано систему контролю версій Git та хмарний сервіс GitHub. Ці технології були обрані з огляду на необхідність ефективного відстеження змін у коді та збереження історії змін.
+
+    \newpage
+    \subsection{\large Реєстрація та авторизація}
+
+    Функціонал реєстрації та авторизації у цьому веб-застосунку базується на вбудованому у Django модулі 'django.contrib.auth', що містить у собі такі основні компоненти:
+    \begin{itemize}
+    \item Клас користувача ``User''. Це клас, який містить стандартні поля для зберігання інформації про користувача (ім'я, електронна адреса, пароль тощо), а також методи для створення, зміни та видалення користувачів.
+    \item Функції автентифікації. Це вбудовані функції, що приймають введені користувачем дані (наприклад ім'я та пароль), перевіряють доступ користувача до певних частин застосунку та надають йому можливість авторизуватись.
+    
+    \item Сесії. Для авторизації користувача Django використовує систему сесій. При авторизації створюється сесія із унікальним id, який зберігається в cookie на боці клієнта. Протягом сесії Django зберігає дані користувача на сервері пов'язуючи їх із id сесії. Сесія має обмежений час існування, при його завершенні сесія видаляється. Також користувач може самостійно завершити сесію при виході з акаунту.
+    
+    \item Форми для реєстрації та авторизації. Django надає готові форми для реєстрацій та авторизації користувачів, що значно спрощує процес їхнього створення та інтеграції в застосунок.
+    \end{itemize}
+
+    
+    
+    \newpage
+    \subsection{\large База даних}
+    База даних SQLite, що є вбудованою у Django, використовується у цьому застосунку для зберігання даних користувачів, завантажених файлів та коментарів. У ній містяться такі таблиці: 
+    
+    \begin{itemize}
+    \item auth\_user --- таблиця, яка містить id користувача, ім'я користувача, пароль захешований алгоритмом pbkdf2\_sha256, електронну адресу, роль користувача та ще деякі дані.
+
+    \item core\_uploadedfile --- таблиця, яка містить id завантаженого файлу, його повну назву, дату та час завантаження, id автора файлу, коротка назва файлу для відображення на сайті та номер версії файлу.
+
+    \item core\_profile --- таблиця, яка містить ім'я, електронну адресу та id користувача.
+
+    \item core\_comment --- таблиця, яка містить id коментаря, його текст, дату та час створення, id файлу, який було прокоментовано, id користувача, що створив коментар, а також позначку яку дав цьому коментарю автор.
+   
+    \end{itemize}
+    
+    \newpage
+    \subsection{\large Завантаження TeX-файлів}
+
+    Кожен авторизований у цьому веб-застосунку користувач може завантажити свій TeX-файл чи архів (.zip, .tar або .tar.gz) із TeX-документом. 
+
+    У Django є файл models.py, кожен клас у якому відображає таблицю у базі даних, а кожен атрибут класу відповідає стовпцю у таблиці. Для того, щоб зберігати TeX-документи у базі даних, був створений клас UploadedFile.
+
+    Код:
+    \begin{figure}[h]
+    \centering
+    \begin{lstlisting}[style=mystyle]
+class UploadedFile(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    file = models.FileField(upload_to='')
+    display_name = models.CharField(max_length=255)
+    upload_date = models.DateTimeField(auto_now_add=True)
+    version = models.PositiveIntegerField(default=1)
+
+    def save(self, *args, **kwargs):
+        latest_version = UploadedFile.objects.filter(user=self.user, display_name=self.display_name).order_by('-version').first()
+        if latest_version:
+            self.version = latest_version.version + 1
+        super(UploadedFile, self).save(*args, **kwargs)
+    \end{lstlisting}
+    \caption{\normalsize Модель \textit{UploadedFile}}
+    \end{figure}
+
+    Поля цього класу визначають користувача, що завантажив файл, шлях до файлу, відображуване ім'я файлу, дату завантаження і його версію. 
+    
+    Також у цьому класі визначено метод save, який використовується для автоматичного оновлення версії. Спочатку виконується перевірка бази даних на наявність файлу з такою самою відображуваною назвою та автором. Якщо такий файл існує, то версія поточного файлу збільшується на 1 порівняно з останньою наявною версією.
+
+    \newpage
+    
+    Згідно з архітектурою проєкту Django, усі функції зберігаються у файлі views.py, тому далі будуть продемонстровані відповідні фрагменти з цього файлу:
+
+    \begin{itemize}
+    \item Функція завантаження документа на сервер
+
+    Код:
+    \begin{figure}[h]
+    \centering
+    \begin{lstlisting}[style=mystyle]
+    def upload_latex_file(request):
+    if request.method == 'POST':
+        uploaded_file = request.FILES['latex_file']
+        if uploaded_file:
+            if request.user.is_authenticated:
+                user = request.user
+            else:
+                form = SignupForm()
+                return render(request, 'core/signup.html', {'form': form})
+
+        file_name = os.path.basename(uploaded_file.name)
+        safe_file_name = re.sub(r'\s+', '_', file_name)
+        safe_file_name = re.sub(r'[(){}[\]<>]', '', safe_file_name)
+        uploaded_file_obj = UploadedFile(user=user, file=uploaded_file, display_name=safe_file_name)
+        uploaded_file_obj.save()
+
+        return render(request, 'core/upload_success.html', {'file_path': safe_file_name})
+    return render(request, 'core/upload.html')
+    \end{lstlisting}
+    \caption{\normalsize Функція \textit{upload\_latex\_file}}
+    \end{figure}
+    
+
+    Спочатку відбувається перевірка, чи є метод запиту POST (тобто чи були відправлені дані файлу з форми). Якщо так, то змінна uploaded\_file набуває значення обраного файлу.
+
+    Далі перевіряється авторизація користувача: якщо він не авторизований, відбувається переадресація на сторінку signup.html; якщо ж авторизований, визначається так зване ``безпечне ім’я файлу'', яке не містить спеціальних символів або зайвих пропусків. Для створення такого імені використовується модуль re (regular expression) із функцією sub, яка дозволяє замінювати задані шаблони в рядку на інші.
+
+    Після цього в базі даних створюється об’єкт класу UploadedFile, і користувача переадресовують на сторінку upload\_success.html, що свідчить про успішне завантаження файлу.
+
+    \item Функція завантаження документа із сервера:
+
+    Код:
+    \begin{figure}[h]
+    \centering
+    \begin{lstlisting}[style=mystyle]
+    def download_file(request, file_path):
+    file_path = os.path.join(settings.MEDIA_ROOT, file_path)
+    with open(file_path, 'rb') as file:
+        response = HttpResponse(file.read())
+        response['Content-Disposition'] = f'attachment; filename="{os.path.basename(file_path)}"'
+        return response
+    \end{lstlisting}
+    \caption{\normalsize Функція \textit{download\_file}}
+    \end{figure}
+    
+
+    Ця функція, на відміну від попередньої, приймає не лише запит від клієнта, а й шлях до файлу. Для пошуку у файловій системі використовується модуль os (operating system), який дозволяє програмі взаємодіяти з операційною системою. 
+    
+    Після цього відбувається читання файлу за допомогою команди open(file\_path, 'rb'). Весь вміст файлу передається у відповідь HttpResponse, а в заголовок Content-Disposition встановлюється значення attachment — це вказує на те, що файл буде завантажено на комп’ютер.
+    \end{itemize}
+    \newpage
+    \subsection{\large Перетворення TeX-документів у формат PDF}
+
+    Найважливішими функціями цього застосунку є ті, що відповідають за перетворення TeX-документів у зручний формат PDF --- саме на них і буде зосереджено подальший розгляд.
+
+    \begin{itemize}
+    \item Загальна функція завантаження у форматі PDF
+
+    Код:
+    \begin{figure}[h]
+    \centering
+    \begin{lstlisting}[style=mystyle]
+    def download_pdf(request, file_path):
+    short_name = os.path.splitext(file_path)[0]
+    pdf_file_path, short_name = get_or_generate_pdf_directory(file_path, short_name)
+    return download_generated_pdf(pdf_file_path, short_name)
+    \end{lstlisting}
+    \caption{\normalsize Функція \textit{download\_pdf}}
+    \end{figure}
+
+    Це загальна функція, яка відповідає за весь процес завантаження PDF-документа. 
+    Спершу береться назва TeX-файлу чи архіву та відкидається його розширення, це робиться для того, щоб надати PDF-файлу назву. Після цього змінним, що відповідають за шлях та за назву, присвоюються значення, які були отримані із функції для отримання шляху до PDF-файлу. При завершенні повертається функція для безпосереднього завантаження PDF-документу, що містить у якості параметрів шлях до цього документу та його назву.
+    
+    \newpage
+    \item Функція отримання шляху до PDF-документа
+
+    Код:
+    \begin{figure}[h]
+    \centering
+    \begin{lstlisting}[style=mystyle]
+    def get_or_generate_pdf_directory(file_path, short_name=None):
+        if short_name is None:
+            short_name = os.path.splitext(file_path)[0]
+    
+        long_path = os.path.join(settings.MEDIA_ROOT, file_path)
+        output_dir = os.path.join(settings.MEDIA_ROOT, 'pdf_generated', short_name)
+        os.makedirs(output_dir, exist_ok=True)
+    
+        pdf_files = [f for f in os.listdir(output_dir) if f.endswith(".pdf")]
+        if pdf_files:
+            pdf_file_path = os.path.join(output_dir, pdf_files[0])
+        else:
+            pdf_file_path = generate_pdf(long_path, file_path, short_name, output_dir)
+    
+        return pdf_file_path, short_name
+    \end{lstlisting}
+    \caption{\normalsize Функція \textit{get\_or\_generate\_pdf\_directory}}
+    \end{figure}
+
+    Ця функція виконує пошук або створення PDF-файлу у відповідній директорії.
+    Спершу, якщо не було вказано ім'я, воно визначається з шляху до файлу через видалення розширення. Далі формується повний шлях до вхідного файлу, а також шлях до директорії, в якій має зберігатися PDF-документ. Якщо така директорія ще не існує, то вона створюється. Після цього відбувається пошук усіх PDF-файлів у цій директорії. Якщо хоча б один такий файл знайдено, функція використовує перший з них. Якщо ж PDF-файлів немає, викликається функція generate\_pdf, яка створює PDF на основі вхідного файлу.
+    У результаті функція повертає повний шлях до PDF-файлу та ім’я.
+
+    \newpage
+    \item Функція генерації PDF-документа
+
+    Код:
+    \begin{figure}[h]
+    \centering
+    \begin{lstlisting}[style=mystyle]
+    def generate_pdf(long_path, file_path, short_name, output_dir):
+    temp_dir = os.path.join(settings.MEDIA_ROOT, 'temp', short_name)
+    os.makedirs(temp_dir, exist_ok=True)
+
+    try:
+        if zipfile.is_zipfile(long_path) or long_path.endswith(
+                '.tar.gz') or long_path.endswith('.tgz') or tarfile.is_tarfile(long_path):
+            extract_archive(long_path, temp_dir)
+            tex_files = [f for f in os.listdir(temp_dir) if f.endswith('.tex')]
+            if not tex_files:
+                raise RuntimeError("No .tex files in this archive.")
+
+            tex_file_path = os.path.join(temp_dir, tex_files[0])
+        else:
+            tex_file_path = os.path.join(temp_dir, file_path)
+            shutil.copy(long_path, tex_file_path)
+
+        tex_file_name = os.path.basename(tex_file_path)
+        compile_with_pdflatex(tex_file_path, output_dir)
+        pdf_file_path = os.path.join(output_dir, f"{os.path.splitext(tex_file_name)[0]}.pdf")
+        return pdf_file_path
+
+    finally:
+        shutil.rmtree(temp_dir, ignore_errors=True)
+    \end{lstlisting}
+    \caption{\normalsize Функція \textit{generate\_pdf}}
+    \end{figure}
+
+     Ця функція генерує PDF-документ із TeX-документу, який може бути або окремим TeX-файлом, або архівом, що містить TeX-файли. Спочатку створюється тимчасова директорія (якщо вона ще не існує), використовуючи передане коротке ім’я. Далі перевіряється, чи є вхідний файл архівом (із розширенням .zip, .tar.gz, .tgz або таким, що розпізнається як tar-архів). Якщо це архів, то він розпаковується у тимчасову директорію за допомогою функції extract\_archive, після чого в цій директорії здійснюється пошук файлів з розширенням .tex. Якщо жодного такого файлу не знайдено, викликається помилка. Якщо знайдено — береться перший .tex файл зі списку. Якщо вхідний файл не є архівом, він вважається TeX-файлом і просто копіюється у тимчасову директорію під заданим ім’ям. Після цього викликається функція compile\_with\_pdflatex, яка компілює знайдений TeX-файл у PDF-документ у вказаній вихідній директорії. Шлях до згенерованого PDF повертається як результат функції. Незалежно від результату виконання, тимчасова директорія видаляється після завершення роботи функції для очищення проміжних файлів.
+
+    \newpage
+    \item Функція розпакування архіву
+
+    Код:
+    \begin{figure}[h]
+    \centering
+    \begin{lstlisting}[style=mystyle]
+    def extract_archive(archive_path, extract_to):
+    if zipfile.is_zipfile(archive_path):
+        with zipfile.ZipFile(archive_path, 'r') as archive:
+            archive.extractall(path=extract_to)
+    elif archive_path.endswith('.tar.gz') or archive_path.endswith('.tgz'):
+        with tarfile.open(archive_path, 'r:gz') as archive:
+            archive.extractall(path=extract_to)
+    elif tarfile.is_tarfile(archive_path):
+        with tarfile.open(archive_path, 'r') as archive:
+            archive.extractall(path=extract_to)
+    else:
+        raise RuntimeError("This archive type is not supported. You can use only ZIP, TAR and TAR.GZ archives")
+    \end{lstlisting}
+    \caption{\normalsize Функція \textit{extract\_archive}}
+    \end{figure}
+
+    Ця функція перевіряє тип архіву і, залежно від нього, за допомогою методу extractall з відповідного модуля (zipfile або tarfile) розпаковує його вміст у вказану папку. Вона підтримує такі типи архівів:
+    \begin{enumerate}[label=\arabic*)]
+        \item .zip — обробляється за допомогою модуля zipfile.
+        \item .tar.gz, .tgz — обробляється як gzip-стиснутий tar-архів.
+        \item .tar — звичайний tar-архів, без стиснення.
+    \end{enumerate}
+    Якщо файл не належить до жодного з підтримуваних типів, функція згенерує помилку (RuntimeError), повідомляючи, що архів не підтримується.
+
+    \newpage
+
+    \item Функція компіляції PDF-документа
+
+    Код:
+    \begin{figure}[h]
+    \centering
+    \begin{lstlisting}[style=mystyle]
+    def compile_with_pdflatex(tex_file_path, output_dir):
+    command = [
+        'pdflatex',
+        '-interaction=nonstopmode',
+        '-output-directory', output_dir,
+        tex_file_path
+    ]
+    try:
+        subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=os.path.dirname(tex_file_path))
+        subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=os.path.dirname(tex_file_path))
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError(f"Error during pdflatex execution: {e.stderr.decode('utf-8')}")
+    \end{lstlisting}
+    \caption{\normalsize Функція \textit{compile\_with\_pdflatex}}
+    \end{figure}
+
+    Ця функція компілює LaTeX файл у PDF. Функція створює команду, яка викликає компілятор pdflatex з параметрами для нескінченної компіляції в разі помилок та вказує на директорію для збереження результатів. Команда виконується два рази через subprocess.run, що дозволяє оновити посилання або інші елементи, які можуть потребувати повторної компіляції. Перший запуск створює основний PDF файл, а другий допомагає впоратися з ситуаціями, коли LaTeX потребує кілька прогонів для правильної обробки всіх елементів. Якщо під час виконання команди виникає помилка, буде згенеровано виключення RuntimeError з детальною інформацією про помилку.
+
+        \newpage
+
+    \item Функція безпосереднього завантаження PDF-документа
+
+    Код:
+    \begin{figure}[h]
+    \centering
+    \begin{lstlisting}[style=mystyle]
+    def download_generated_pdf(pdf_file_path, short_name):
+    with open(pdf_file_path, 'rb') as pdf_file:
+        response = HttpResponse(pdf_file.read(), content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{short_name}.pdf"'
+        return response
+    \end{lstlisting}
+    \caption{\normalsize Функція \textit{download\_generated\_pdf}}
+    \end{figure}
+
+    Ця функція завантажує попередньо згенерований PDF-документ на комп'ютер. Спершу відкривається необхідний документ в режимі читання бінарних даних (rb), щоб зчитувати дані без змін. Далі, за допомогою pdf\_file.read(), читається вміст файлу і створюється об'єкт відповіді HttpResponse. Після цього встановлюється заголовок Content-Disposition, який повідомляє браузеру, що файл повинен бути завантажений як вкладення, а не відкриватись у вікні. Також присвоюється ім'я для завантаження цьому файлу. Після цього функція повертає цей response, що дозволяє клієнту завантажити цей PDF-документ.
+
+    \newpage
+    \item Функція перегляду PDF-документа на сторінці файлу
+
+    Код:
+    \begin{figure}[h]
+    \centering
+    \begin{lstlisting}[style=mystyle]
+    def view_pdf(request, file_id):
+        file_obj = get_object_or_404(UploadedFile, pk=file_id)
+        file_path = file_obj.file.name
+        short_name = os.path.splitext(file_path)[0]
+    
+        pdf_file_path, _ = get_or_generate_pdf_directory(file_path, short_name)
+    
+        with open(pdf_file_path, 'rb') as pdf_file:
+            response = HttpResponse(pdf_file.read(), content_type='application/pdf')
+            response['Content-Disposition'] = f'inline; filename="{short_name}.pdf"'
+            return response
+    \end{lstlisting}
+    \caption{\normalsize Функція \textit{view\_pdf}}
+    \end{figure}
+
+    Ця функція відповідає за відправку PDF-файлу на сторінку для перегляду в браузері. Спершу виконується пошук об'єкта UploadedFile у базі даних за file\_id. Якщо такий об'єкт не знайдений, буде повернено помилку 404. В результаті змінна file\_obj містить дані про файл, зокрема його шлях. Далі з file\_obj витягується шлях до файлу із якого витягується ім'я файлу без розширення. Після цього викликається функція get\_or\_generate\_pdf\_directory, яка перевіряє наявність PDF-файлу або генерує його, якщо він ще не існує. Функція повертає шлях до PDF-файлу. Після цього за отриманим шляхом відкривається для читання відповідний PDF-файл, зчитується його вміст, присвоюється заголовок Content-Disposition зі значенням inline. Це вказує браузеру на необхідність відображення PDF-файлу безпосередньо на сторінці, а не на завантаження. Після цього функція повертає сформований response.
+
+    \end{itemize}
+    
+    \newpage
+    \subsection{\large Версії файлів}
+    
+    \newpage
+    \subsection{\large Коментарі}
+
+    \newpage
+    \subsection{\large Git}
+    
+    \newpage
+    \begin{center}
+        \section{\large \ РЕЗУЛЬТАТИ РОБОТИ}
+    \end{center}
+
+    
+    \newpage
+    \begin{center}
+         \section*{\large ВИСНОВКИ}
+    \end{center}
+    \addcontentsline{toc}{section}{\protect\numberline{}\large ВИСНОВКИ}
+    
+    \newpage
+    \begin{center}
+          \section*{\large СПИСОК ВИКОРИСТАНИХ ДЖЕРЕЛ}  
+    \end{center}
+    \addcontentsline{toc}{section}{\protect\numberline{}\large СПИСОК ВИКОРИСТАНИХ ДЖЕРЕЛ}
+    
+\end{document}

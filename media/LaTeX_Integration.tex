@@ -1,0 +1,236 @@
+\documentclass[a4paper,14pt]{extarticle}
+% Кодування та шрифти
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage[ukrainian]{babel}
+
+% Пакети для геометрії та стилю
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{setspace}
+\usepackage{fancyhdr}
+
+% Для роботи з титулами і таблицею змісту
+\usepackage{titletoc}
+
+% Для коду та графіки
+\usepackage{listings}
+
+% Для математичних команд
+\usepackage{amsmath}
+
+
+\title{Інтеграція та розробка платформи для керування публікаціями за допомогою LaTeX}
+\author{Фареник М.В.}
+\date{Львів-2025}
+
+\renewcommand{\baselinestretch}{1.5}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[R]{\thepage} 
+\setlength{\headheight}{17pt}
+\addtolength{\topmargin}{-3pt}
+\renewcommand{\headrulewidth}{0pt} 
+
+
+\titlecontents{section}[0em]{}{\thecontentslabel}{ \hspace{1em}}{\titlerule*[0.5pc]{.}\hspace{1em}\normalfont\thecontentspage}
+
+\titlecontents{subsection}[2em]{}{\thecontentslabel}{ \hspace{1em}}{\titlerule*[0.5pc]{.}\hspace{1em}\normalfont\thecontentspage}
+
+
+\renewcommand{\thesection}{\large\arabic{section}}
+\renewcommand{\thesubsection}{\large\arabic{section}.\arabic{subsection} }
+
+\lstdefinestyle{mystyle}{
+    basicstyle=\ttfamily\small\linespread{1.5},       
+    breaklines=true,                                                  
+    numbers=left,                       
+}
+
+\numberwithin{figure}{section}
+\renewcommand{\figurename}{Рис.}
+
+\begin{document}
+    
+    \begin{titlepage}
+        \begin{center}
+        
+        \footnotesize\textbf{ ЛЬВІВСЬКИЙ НАЦІОНАЛЬНИЙ УНІВЕРСИТЕТ ІМЕНІ ІВАНА ФРАНКА}
+        
+        \vspace{0.5cm}
+        \textbf{ ФАКУЛЬТЕТ ПРИКЛАДНОЇ МАТЕМАТИКИ ТА ІНФОРМАТИКИ}
+        
+        \vspace{0.5cm}
+        
+        \hspace*{8cm}
+        \small{Кафедра теорії оптимальних процесів}
+        
+        \vspace{3cm}
+        \begin{spacing}{1} 
+            \textbf{\Large ДИПЛОМНА РОБОТА}
+            
+            \large на тему:  "Інтеграція та розробка платформи для керування публікаціями за допомогою LaTeX"
+        \end{spacing}
+        
+        \vspace{2cm}
+        \hspace*{8cm}
+        \begin{minipage}{0.7\textwidth} 
+            \begin{flushleft}
+                \normalsize\textbf{Виконав:} \\
+                студент 4 курсу групи ПМа-41, \\
+                спеціальності "системний аналіз" \\
+                Фареник М.В. \\
+                \textbf{Керівник:} Демидюк М.В. \\
+                Національна шкала: \underline{\hspace{2cm}} \\
+                Кількість балів: \underline{\hspace{1cm}} \\
+                Оцінка ECTS: \underline{\hspace{1cm}}
+            \end{flushleft}
+        \end{minipage}
+        
+        
+        \vspace{0.5cm}
+        \begin{spacing}{1}
+            \normalsize\textbf{Члени комісії}
+            
+            \hspace*{8cm}
+            \begin{tabular}{p{3cm} p{5cm}}
+                \\
+                \underline{\hspace{2cm}} & \underline{\hspace{4cm}} \\
+                (підпис) & (прізвище та ініціали) \\
+                \\
+                \underline{\hspace{2cm}} & \underline{\hspace{4cm}} \\
+                (підпис) & (прізвище та ініціали) \\
+                \\
+                \underline{\hspace{2cm}} & \underline{\hspace{4cm}} \\
+                (підпис) & (прізвище та ініціали) \\
+            \end{tabular}
+        \end{spacing}
+        \vfill
+        \small Львів - 2025
+        \end{center}
+    \end{titlepage}
+    
+    \newpage
+    \setcounter{page}{2}
+    \begin{center}
+        \renewcommand{\contentsname}{\large{ЗМІСТ}}
+        \tableofcontents
+    \end{center}
+    
+    \newpage
+    
+    \begin{center}
+        \section*{\large ВСТУП}
+    \end{center}
+    \addcontentsline{toc}{section}{\protect\numberline{}\large ВСТУП}
+
+    Темою дипломної роботи я обрав інтеграцію та розробку платформи для керування публікаціями за допомогою LaTeX. Мова розмітки даних TeX є загальновизнаним стандартом для публікації наукових робіт, особливо у галузях точних наук, до прикладу, математика та інформатика. Головною особливістю та перевагою TeX, у порівнянні, наприклад, із Microsoft Word, є зручність у написанні математичних формул. Крім того, для TeX існує макропакет (набір із макросів) LaTeX, який містить готові команди для роботи із текстом, таблицями, бібліографією тощо. 
+    
+    LaTeX надає можливість зручного керування оформленням документа, що є дуже важливим для публікації роботи у науковому журналі чи книзі, оскільки вони, як правило, повинні відповідати певним вимогам щодо оформлення. Прикладами використання LaTeX можна назвати arXiv.org (найбільший безкоштовний архів наукових публікацій) та JANA (Журнал Прикладного та Чисельного Аналізу). 
+
+    Однак багато користувачів, які не звикли працювати з цією мовою розмітки, не можуть навіть переглянути такі документи без спеціального програмного забезпечення, такого як TeXmaker чи TeXstudio. Саме тому актуальною є розробка системи, яка дозволяє імпортувати, зберігати, переглядати (без необхідності встановлення додаткового ПЗ) та експортувати TeX-документи як в оригінальному форматі чи архіві, так і у форматі PDF. Така система буде корисною для авторів наукових робіт, студентів і звичайних користувачів, які працюють із TeX-документами.
+    
+    \newpage
+    
+    \begin{center}
+        \section{\large \ РОЗРОБКА} 
+    \end{center}
+    \subsection{\large Використані технології}
+    
+    Для розробки веб-застосунку було використано мову програмування Python та фреймворк Django. Ці технології було обрано через їхню простоту, поширеність та високий рівень безпеки. Python відомий своїм лаконічним синтаксисом, а Django --- наданням готових інструментів, які значно прискорюють процес розробки. Крім того, наявність великої кількості різноманітних бібліотек полегшує вирішення вузькоспеціалізованих задач. Також Django містить вбудовані механізми захисту, що робить його надійним вибором для створення безпечних застосунків.
+
+    Для зберігання даних було використано реляційну базу даних SQLite. Основною перевагою SQLite є те, що вона вбудована у фреймворк Django, що, своєю чергою, значно спрощує роботу з нею. Наприклад, фреймворк автоматично створює деякі таблиці, такі як таблиці користувачів, сесій, міграцій та інші.
+
+    Для перетворення TeX-документів у PDF-формат було використано компілятор pdflatex. Це розширення для LaTeX, яке замість того, щоб створювати DVI (Device Independent File), генерує PDF-файл безпосередньо з LaTeX-коду.
+
+    Для контролю над версіями застосунку було використано систему контролю версій Git та хмарний сервіс GitHub. Ці технології було обрано з огляду на необхідність ефективного відстеження змін у коді та збереження історії змін.
+
+    \newpage
+    \subsection{\large Реєстрація та авторизація}
+
+    Функціонал реєстрації та авторизації у цьому веб-застосунку базується на вбудованому у Django модулі 'django.contrib.auth', що містить у собі такі основні компоненти:
+    \begin{itemize}
+    \item Клас користувача "User". Це клас, який містить стандартні поля для зберігання інформації про користувача (ім'я, електронна адреса, пароль тощо), а також методи для створення, зміни та видалення користувачів.
+    \item Функції автентифікації. Це вбудовані функції, що приймають введені користувачем дані (наприклад ім'я та пароль), перевіряють доступ користувача до певних частин застосунку та надають йому можливість авторизуватись.
+    
+    \item Сесії. Для авторизації користувача Django використовує систему сесій. При авторизації створюється сесія із унікальним id, який зберігається в cookie на боці клієнта. Протягом сесії Django зберігає дані користувача на сервері пов'язуючи їх із id сесії. Сесія має обмежений час існування, при його завершенні сесія видаляється. Також користувач може самостійно завершити сесію при виході з акаунту.
+    
+    \item Форми для реєстрації та авторизації. Django надає готові форми для реєстрацій та авторизації користувачів, що значно спрощує процес їхнього створення та інтеграції в застосунок.
+    \end{itemize}
+
+    
+    
+    \newpage
+    \subsection{\large База даних}
+    База даних SQLite, що є вбудованою у Django, використовується у цьому застосунку для зберігання даних користувачів, завантажених файлів та коментарів. У ній містяться такі таблиці: 
+    
+    \begin{itemize}
+    \item auth\_user --- таблиця, яка містить id користувача, ім'я користувача, пароль захешований алгоритмом pbkdf2\_sha256, електронну адресу, роль користувача та ще деякі дані.
+
+    \item core\_uploadedfile --- таблиця, яка містить id завантаженого файлу, його повну назву, дату та час завантаження, id автора файлу, коротка назва файлу для відображення на сайті та номер версії файлу.
+
+    \item core\_profile --- таблиця, яка містить ім'я, електронну адресу та id користувача.
+
+    \item core\_comment --- таблиця, яка містить id коментаря, його текст, дату та час створення, id файлу, який було прокоментовано, id користувача, що створив коментар, а також позначку яку дав цьому коментарю автор.
+   
+    \end{itemize}
+    
+    \newpage
+    \subsection{\large Завантаження TeX-файлів}
+
+    Кожен авторизований у цьому веб-застосунку користувач може завантажити свій TeX-файл чи архів (.zip, .tar або .tar.gz) із TeX-документом. 
+
+    У Django є файл models.py, кожен клас у якому відображає таблицю у базі даних, а кожен атрибут класу відповідає стовпцю у таблиці. Для того, щоб зберігати TeX-документи у базі даних був створений клас UploadedFile.
+
+    Код:
+    \begin{figure}[h]
+    \centering
+    \begin{lstlisting}[style=mystyle]
+class UploadedFile(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    file = models.FileField(upload_to='')
+    display_name = models.CharField(max_length=255)
+    upload_date = models.DateTimeField(auto_now_add=True)
+    version = models.PositiveIntegerField(default=1)
+
+    def save(self, *args, **kwargs):
+        latest_version = UploadedFile.objects.filter(user=self.user, display_name=self.display_name).order_by('-version').first()
+        if latest_version:
+            self.version = latest_version.version + 1
+        super(UploadedFile, self).save(*args, **kwargs)
+    \end{lstlisting}
+    \caption{\normalsize Модель UploadedFile}
+    \end{figure}
+    
+    \newpage
+    \subsection{\large Перетворення TeX-документів у формат PDF}
+
+    \newpage
+    \subsection{\large Версії файлів}
+    
+    \newpage
+    \subsection{\large Коментарі}
+
+    \newpage
+    \subsection{\large Git}
+    
+    \newpage
+    \begin{center}
+        \section{\large \ РЕЗУЛЬТАТИ РОБОТИ}
+    \end{center}
+
+    
+    \newpage
+    \begin{center}
+         \section*{\large ВИСНОВКИ}
+    \end{center}
+    \addcontentsline{toc}{section}{\protect\numberline{}\large ВИСНОВКИ}
+    
+    \newpage
+    \begin{center}
+          \section*{\large СПИСОК ВИКОРИСТАНИХ ДЖЕРЕЛ}  
+    \end{center}
+    \addcontentsline{toc}{section}{\protect\numberline{}\large СПИСОК ВИКОРИСТАНИХ ДЖЕРЕЛ}
+    
+\end{document}
