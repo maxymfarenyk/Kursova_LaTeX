@@ -4,10 +4,19 @@
 {% endblock %}
 
 {% block content %}
-<h1>The update page</h1>
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    <input type="file" name="updated_file" accept=".tex,.zip,.tar,.tar.gz" required>
-    <button type="submit" class="px-6 py-3 text-lg font-semibold bg-green-500 text-white rounded-xl hover:bg-green-700">Update LaTeX File</button>
-</form>
+<div class="flex flex-col items-center justify-center h-[500px]">
+    <h1 class="text-3xl font-bold mb-8">Update Your LaTeX File</h1>
+    <form method="post" enctype="multipart/form-data" class="bg-white shadow-md rounded-lg px-8 pt-6 pb-8 mb-4 w-96">>
+        {% csrf_token %}
+         <div class="mb-4">
+            <label class="block text-gray-700 font-bold mb-2" for="updated_file">
+                Select File
+            </label>
+            <input class="border rounded w-full py-2 px-3 text-gray-700 leading-tight" type="file" id="updated_file" name="updated_file" accept=".tex,.zip,.tar,.tar.gz" required>
+         </div>
+         <div class="flex items-center justify-between">
+             <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-full" >Update LaTeX File</button>
+         </div>
+    </form>
+</div>
 {% endblock %}
