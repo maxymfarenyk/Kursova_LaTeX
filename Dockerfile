@@ -16,4 +16,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Відкриваємо порт 8000 для сервера Gunicorn
 EXPOSE 8000
 
-CMD ["gunicorn", "kursova.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["sh", "-c", "python manage.py migrate && gunicorn -w 4 -b 0.0.0.0:8000 kursova.wsgi:application"]
